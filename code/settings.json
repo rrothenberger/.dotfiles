@@ -1,0 +1,125 @@
+{
+  "workbench.colorTheme": "Better Solarized Dark",
+  "todo-tree.tree.showScanModeButton": false,
+  "editor.fontFamily": "'FuraCode NF', 'Comic Sans MS', Consolas, 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  "editor.bracketPairColorization.enabled": false,
+  "terminal.integrated.fontFamily": "'FuraCode NF', 'Comic Sans MS'",
+  "files.associations": {
+    "*.mjml": "erb"
+  },
+  "workbench.list.automaticKeyboardNavigation": false,
+  "workbench.enableExperiments": false,
+  "workbench.preferredDarkColorTheme": "Solarized Dark",
+  "[vue]": {
+    "editor.defaultFormatter": "octref.vetur"
+  },
+  "go.autocompleteUnimportedPackages": true,
+  "go.formatTool": "gofmt",
+  "go.useLanguageServer": true,
+  "ruby.format": false,
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "ruby.useLanguageServer": true,
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "http.proxyAuthorization": null,
+  "terminal.integrated.shellArgs.linux": ["-l"],
+  "editor.tabSize": 2,
+  "todo-tree.general.tags": [
+    "BUG",
+    "HACK",
+    "FIXME",
+    "TODO",
+    "XXX",
+    "[ ]",
+    "[x]"
+  ],
+  "todo-tree.regex.regex": "(//|#|<!--|;|/\\*|^|^\\s*(-|\\d+.))\\s*($TAGS)",
+  "[sql]": {
+    "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
+  },
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter.notebook.ipynb"
+  },
+  "cSpell.userWords": [
+    "Anonimowy",
+    "Authenticatable",
+    "Dzi",
+    "Dzięki",
+    "Dziękujemy",
+    "jsonb",
+    "ki",
+    "kujemy",
+    "monterail",
+    "paypal",
+    "renderable",
+    "wsparcie",
+    "wspomagacz"
+  ],
+  "php.memoryLimit": "8192M",
+  "phpcs.executablePath": "/home/night/.phpenv/versions/7.3.19/composer/vendor/bin/phpcs",
+  "php.validate.enable": false,
+  "php-cs-fixer.executablePath": "${extensionPath}/php-cs-fixer.phar",
+  "php-cs-fixer.lastDownload": 1705839839840,
+  "php-cs-fixer.onsave": true,
+  "php.suggest.basic": false,
+  "php.validate.executablePath": "/home/night/.phpenv/shims/php",
+  "grammarly.hideUnavailablePremiumAlerts": true,
+  "redhat.telemetry.enabled": false,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "ruby.codeCompletion": "rcodetools",
+  "ruby.lint": {
+    "rubocop": true,
+    "standard": false
+  },
+  "ruby.intellisense": "rubyLocate",
+  "[blade]": {
+    "editor.defaultFormatter": "shufo.vscode-blade-formatter"
+  },
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+  },
+  "[elixir]": {
+    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+  },
+  "security.workspace.trust.untrustedFiles": "open",
+  "cSpell.enabled": true,
+  "atomKeymap.promptV3Features": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[solidity]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "phpcs.standard": "PSR1",
+  "[ruby]": {
+    "editor.defaultFormatter": "rebornix.ruby"
+  },
+  "terminal.integrated.gpuAcceleration": "canvas",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "xml.server.binary.trustedHashes": [
+    "34f51b1d8c3b85bf8af72502c3a52ca841d11cf76f848be198631e0dd2b7e169"
+  ],
+  "git.mergeEditor": false,
+  "[python]": {
+    "editor.formatOnType": true
+  },
+  "workbench.startupEditor": "none",
+  "markdownlint.config": {
+    "MD013": false,
+    "MD024": { "allow_different_nesting": true }
+  },
+  "window.commandCenter": true,
+  "workbench.editor.empty.hint": "hidden",
+  "remote.autoForwardPortsSource": "hybrid",
+  "[xml]": {
+    "editor.defaultFormatter": "fabianlauer.vs-code-xml-format"
+  },
+  "scm.showOutgoingChanges": "never"
+}

@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+if [ -z "$OTP_GPG_KEY_ID" ]; then
+	echo "OTP_GPG_KEY_ID is not set";
+	exit 1;
+fi
+GPG_KEY_ID=$OTP_GPG_KEY_ID;
+
+OPERATION=$1
+PROFILE=$2
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+SECRETS_DIR=$HOME/.local/config/otp;
+
+if [ ! -d "$SECRETS_DIR" ]; then
+	mkdir -p $SECRETS_DIR;
+fi
+
+function addOtpKey() {
+	filename="$SECRETS_DIR/$1.enc";
+	if [ -f "$filename" ]; then
+		echo "$1 already exists";
+		exit 1;
+	fi
+
+	echo -n	"Enter OTP Secret: ";
+	read -s secret;
+	echo;
+
+	echo -n $secret | gpg --encrypt --recipient $GPG_KEY_ID > $filename;
+}
+
+function generateOtp() {
+	filename="$SECRETS_DIR/$1.enc";
+	if [ ! -f "$filename" ]; then
+		echo "$1 does not exist";
+		exit 1;
+	fi
+
+	secret=$(gpg --decrypt $filename 2>/dev/null);
+	oathtool --totp -b $secret;
+}
+
+function deleteOtpKey() {
+	filename="$SECRETS_DIR/$1.enc";
+	if [ ! -f "$filename" ]; then
+		echo "$1 does not exist";
+		exit 1;
+	fi
+
+	rm $filename;
+	echo "$1 deleted";
+}
+
+function listOtpKeys() {
+	ls $SECRETS_DIR |	sed 's/\.enc//g';
+}
+
+function showHelp() {
+	echo "Usage: otp <(a)dd|(g)enerate|(d)elete|(l)ist>";
+	exit 1;
+}
+
+case "$OPERATION" in
+	a|add)
+		addOtpKey "$PROFILE"
+		;;
+	g|generate)
+		generateOtp "$PROFILE"
+		;;
+	d|delete)
+		deleteOtpKey "$PROFILE"
+		;;
+	l|list)
+		listOtpKeys
+		;;
+	*)
+		showHelp
+		;;
+esac
+

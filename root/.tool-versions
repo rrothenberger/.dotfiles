@@ -1,0 +1,14 @@
+elixir 1.16.2-otp-26
+erlang 26.2.3
+golang 1.22.1
+nodejs 20.12.0
+ruby 3.3.0
+rust 1.77.1
+zig 0.11.0
+awscli 2.15.34
+aws-vault 7.2.0
+kubectl 1.28.8
+postgres 16.2
+redis 7.2.4
+sops 3.8.1
+terraform 1.7.5
