@@ -33,7 +33,7 @@ echo -n "" > $user_home/.zprofile
 (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> $user_home/.zprofile
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-brew install tmux gpg2 fzf pinentry-mac kitty jq coreutils direnv \
+brew install tmux gpg2 fzf pinentry-mac kitty jq coreutils direnv ripgrep \
              autoconf openssl wxwidgets fop libxslt \
              icu4c pkg-config libyaml
 
