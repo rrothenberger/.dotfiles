@@ -6,7 +6,7 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
 		"BurntSushi/ripgrep",
-		{"harpoon2-telescope.nvim", dir = "~/personal/random/telescope-harpoon2"}
+		"rafalrothenberger/telescope-harpoon2.nvim"
   },
 
   config = function()
