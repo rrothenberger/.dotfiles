@@ -32,6 +32,6 @@ sudo apt update -y
 sudo apt install -y zsh git tmux gnupg2 fzf htop build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev \
 	                  libwxgtk-webview3.0-gtk3-dev \
 	                  libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2 \
-										libxml2-utils libreadline-dev libyaml-dev scdaemon yubikey-personalization yubikey-manager
+										libxml2-utils libreadline-dev libyaml-dev dconf-cli scdaemon yubikey-personalization yubikey-manager
 chsh -s $(which zsh)
 
