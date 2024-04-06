@@ -197,6 +197,14 @@ function _check_if_git_personal_config_is_commited() {
 }
 _check_if_git_personal_config_is_commited
 
+function _sync_gitconfig() {
+    pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&-
+    git add .
+    git commit -m "[auto] syncing settings"
+    git push origin main
+    popd >/dev/null 2>&-
+}
+
 _already_loaded_run_me=()
 function _run_me_in_repo {
     file=`git rev-parse --show-toplevel 2>/dev/null`"/.ignore_this_folder/run_me.sh"
