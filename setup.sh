@@ -130,6 +130,11 @@ if [ ! -d "$user_home/.oh-my-zsh/custom/themes/powerlevel10k" ]; then
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$user_home/.oh-my-zsh/custom/themes/powerlevel10k"
 fi
 
+if [ ! -d "$user_home/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+	echo "Installing zsh-autosuggestions..."
+  git clone https://github.com/zsh-users/zsh-autosuggestions "$user_home/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+fi
+
 linkConfiguration ".zshrc" 
 linkConfiguration ".gitconfig" 
 linkConfiguration ".gitignore_global" 
@@ -138,6 +143,8 @@ linkConfiguration ".gnupg/gpg-agent.conf"
 linkConfiguration ".tmux.conf"
 linkConfiguration ".config/nvim"
 linkConfiguration ".tool-versions"
+
+chmod 0700 "$user_home/.gnupg"
 
 linkConfiguration ".local/bin/otp"
 
@@ -155,8 +162,10 @@ gpg2 --import-ownertrust "${script_path}/ownertrust.txt"
 
 if [ ! -z "$install_asdf" ]; then
   if ! command -v asdf >/dev/null; then
-    echo "Installing asdf..."
-    git clone https://github.com/asdf-vm/asdf.git "$user_home/.asdf" --branch v0.14.0
+		if [ ! -d "${user_home}/.asdf" ]; then
+      echo "Installing asdf..."
+      git clone https://github.com/asdf-vm/asdf.git "$user_home/.asdf" --branch v0.14.0
+    fi
 
     source $user_home/.asdf/asdf.sh
   fi
