@@ -143,6 +143,7 @@ linkConfiguration ".gnupg/gpg-agent.conf"
 linkConfiguration ".tmux.conf"
 linkConfiguration ".config/nvim"
 linkConfiguration ".tool-versions"
+linkConfiguration ".config/kitty"
 
 chmod 0700 "$user_home/.gnupg"
 
