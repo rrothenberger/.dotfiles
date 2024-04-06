@@ -98,9 +98,6 @@ fi
 function linkConfiguration() {
   local file=$1
   local dest="${user_home}/${file}"
-	if [ ! -z "$2" ]; then
-		dest=$2
-	fi
 
   if [ -f "$dest" ] || [ -d "$dest" ]; then
     if [ -L "$dest" ]; then
