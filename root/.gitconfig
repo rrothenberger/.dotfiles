@@ -6,9 +6,8 @@
 [merge]
 	tool = vimdiff
 [core]
-	editorr = vim
 	excludesfile = ~/.gitignore_global
-	editor = vim
+	editor = nvim
 	eol = lf
 [diff]
 	tool = vimdiff
