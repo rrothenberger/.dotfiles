@@ -1,4 +1,4 @@
-vim.opt.guicursor = ""
+-- vim.opt.guicursor = ""
 
 vim.opt.nu = true
 vim.opt.relativenumber = true
@@ -29,6 +29,8 @@ vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = "120"
 
+vim.opt.clipboard = "unnamedplus"
+
 -- Remaps
 
 vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
@@ -38,3 +40,5 @@ vim.keymap.set("n", "<C-]>", ":tabnext<CR>")
 
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+
+vim.keymap.set("n", "Q", "<nop>")
