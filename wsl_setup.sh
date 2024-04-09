@@ -30,6 +30,8 @@ echo "Start time: $start_time"
 
 echo
 
+sudo apt install -y socat
+
 if [ ! -d "$app_home" ]; then
 	echo 'No AppData/Roaming directory found'
 	exit 1
