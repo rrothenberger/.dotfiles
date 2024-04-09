@@ -8,7 +8,7 @@ fi
 set -eo pipefail
 
 user_home=$HOME
-
+install_docker=$INSTALL_DOCKER
 set -u
 
 temp=$(mktemp -d)
@@ -35,4 +35,25 @@ sudo apt install -y zsh git tmux gnupg2 fzf htop build-essential autoconf \
 										libxml2-utils libreadline-dev libyaml-dev \
 										scdaemon yubikey-personalization yubikey-manager kitty direnv
 chsh -s $(which zsh)
+
+if [ ! -z "$install_docker" ]; then
+  sudo apt install gnome-terminal
+
+	# Add Docker's official GPG key:
+  sudo apt-get update
+  sudo apt-get install -y ca-certificates curl
+  sudo install -m 0755 -d /etc/apt/keyrings
+  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+  # Add the repository to Apt sources:
+  echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt-get update
+
+	curl -Lo "${temp}/docker.deb" "https://desktop.docker.com/linux/main/amd64/145265/docker-desktop-4.29.0-amd64.deb?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-linux-amd64"
+	sudo apt install -y "${temp}/docker.deb"
+fi
 
