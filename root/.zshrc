@@ -149,12 +149,50 @@ export GID=$GID
 export UID=$UID
 
 export LC_ALL=en_US.UTF-8
-if [ -f $HOME/.local/bin/gpg-agent-relay ]; then
-  $HOME/.local/bin/gpg-agent-relay status >> /dev/null || $HOME/.local/bin/gpg-agent-relay start
-fi
 export SSH_AUTH_SOCK="$(gpgconf --list-dirs socketdir)/S.gpg-agent.ssh"
-export GPG_TTY=$(tty)
 
+function _setup_wsl_gpg() {
+	if [ ! -f "$HOME/.wsl2/wsl2-ssh-pageant.exe" ]; then
+		return
+	fi
+
+	local winuser
+	winuser=$(/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe '$env:UserName')
+	winuser=${winuser//$'\r'}
+  local config_path="C\:/Users/$winuser/AppData/Local/gnupg"
+  local wsl2_ssh_pageant_bin="$HOME/.wsl2/wsl2-ssh-pageant.exe"
+	local gpg_socket_dir=$(gpgconf --list-dirs socketdir)
+
+	local ssh_socket="$gpg_socket_dir/S.gpg-agent.ssh"
+	local gpg_socket="$gpg_socket_dir/S.gpg-agent"
+
+  # SSH Socket
+  # Removing Linux SSH socket and replacing it by link to wsl2-ssh-pageant socket
+  # export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
+  if ! ss -a | grep -q "$ssh_socket"; then
+    rm -f "$ssh_socket"
+    if test -x "$wsl2_ssh_pageant_bin"; then
+      (setsid nohup socat UNIX-LISTEN:"$ssh_socket,fork" EXEC:"$wsl2_ssh_pageant_bin" >/dev/null 2>&1 &)
+    else
+      echo >&2 "WARNING: $wsl2_ssh_pageant_bin is not executable."
+    fi
+  fi
+
+  # GPG Socket
+  # Removing Linux GPG Agent socket and replacing it by link to wsl2-ssh-pageant GPG socket
+  # export GPG_AGENT_SOCK="$HOME/.gnupg/S.gpg-agent"
+  if ! ss -a | grep -q "$gpg_socket"; then
+    rm -rf "$gpg_socket"
+    if test -x "$wsl2_ssh_pageant_bin"; then
+      (setsid nohup socat UNIX-LISTEN:"$gpg_socket,fork" EXEC:"$wsl2_ssh_pageant_bin --gpgConfigBasepath ${config_path} --gpg S.gpg-agent" >/dev/null 2>&1 &)
+    else
+      echo >&2 "WARNING: $wsl2_ssh_pageant_bin is not executable."
+    fi
+  fi
+}
+_setup_wsl_gpg
+
+export GPG_TTY=$(tty)
 
 function _load_dotenvfile_git {
     dotenvfile=`git rev-parse --show-toplevel 2>/dev/null`"/.ignore_this_folder/env"
