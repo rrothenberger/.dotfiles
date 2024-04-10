@@ -32,9 +32,23 @@ sudo apt update -y
 sudo apt install -y zsh git tmux gnupg2 fzf htop build-essential autoconf \
                     m4 libncurses5-dev libwxgtk3.0-gtk3-dev  libwxgtk-webview3.0-gtk3-dev \
 	                  libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2 \
-										libxml2-utils libreadline-dev libyaml-dev uuid-dev\
-										scdaemon yubikey-personalization yubikey-manager kitty direnv oathtool
+										libxml2-utils libreadline-dev libyaml-dev uuid-dev pkg-config \
+										libssl-dev zlib1g-dev libcurl4-openssl-dev icu-devtools libicu-dev \
+										scdaemon yubikey-personalization yubikey-manager kitty oathtool jq
+
+sudo snap install yq
 chsh -s $(which zsh)
+
+if [ -f "/opt/direnv" ]; then
+	echo "Removing old direnv installation..."
+	sudo rm /opt/direnv 
+fi
+sudo curl -Lo "/opt/direnv" https://github.com/direnv/direnv/releases/latest/download/direnv.linux-amd64
+sudo chmod +x /opt/direnv
+if [ -L "/usr/local/bin/direnv" ] || [ -f "/usr/local/bin/direnv" ]; then
+  sudo rm -rf /usr/local/bin/direnv
+fi
+sudo ln -s /opt/direnv /usr/local/bin/direnv
 
 if [ ! -z "$install_docker" ]; then
   sudo apt install gnome-terminal
