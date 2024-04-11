@@ -12,3 +12,4 @@ postgres 16.2
 redis 7.2.4
 sops 3.8.1
 terraform 1.7.5
+opentofu 1.6.2

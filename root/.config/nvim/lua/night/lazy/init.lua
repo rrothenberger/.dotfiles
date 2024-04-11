@@ -1,5 +1,5 @@
 return {
   "folke/which-key.nvim",
   "tpope/vim-fugitive",
-	"folke/neoconf.nvim",
+  "folke/neoconf.nvim",
 }
