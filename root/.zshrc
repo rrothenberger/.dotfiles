@@ -166,6 +166,9 @@ function _setup_wsl_gpg() {
 	local ssh_socket="$gpg_socket_dir/S.gpg-agent.ssh"
 	local gpg_socket="$gpg_socket_dir/S.gpg-agent"
 
+	# Make sure that Host is running GPG Agent
+	/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe 'gpgconf --launch gpg-agent'
+
   # SSH Socket
   # Removing Linux SSH socket and replacing it by link to wsl2-ssh-pageant socket
   # export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
