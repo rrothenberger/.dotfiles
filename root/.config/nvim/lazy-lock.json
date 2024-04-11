@@ -22,7 +22,7 @@
   "plenary.nvim": { "branch": "master", "commit": "8aad4396840be7fc42896e3011751b7609ca4119" },
   "ripgrep": { "branch": "master", "commit": "3ad0e83471588d8802d5747d0cc9accec76f7ccf" },
   "rose-pine": { "branch": "main", "commit": "19055dfe90bfa46a1e5b0a706d13980bdffa2dee" },
-  "telescope-harpoon2.nvim": { "branch": "main", "commit": "18a424dacf198c9296e3718606665c34da8affc1" },
+  "telescope-harpoon2.nvim": { "branch": "main", "commit": "3217d26b6156c4a0a4a09f43dd288357026af85c" },
   "telescope.nvim": { "branch": "master", "commit": "d90956833d7c27e73c621a61f20b29fdb7122709" },
   "tokyonight.nvim": { "branch": "main", "commit": "9bf9ec53d5e87b025e2404069b71e7ebdc3a13e5" },
   "trouble.nvim": { "branch": "main", "commit": "b9cf677f20bb2faa2dacfa870b084e568dca9572" },
