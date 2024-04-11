@@ -39,7 +39,7 @@ vim.opt.listchars = { tab = "» ", trail = "■", nbsp = "_" }
 
 -- Remaps
 
-vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
+-- vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
 
 vim.keymap.set("n", "<C-[>", ":tabprevious<CR>")
 vim.keymap.set("n", "<C-]>", ":tabnext<CR>")
