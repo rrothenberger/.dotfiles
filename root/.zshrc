@@ -152,26 +152,25 @@ export LC_ALL=en_US.UTF-8
 export SSH_AUTH_SOCK="$(gpgconf --list-dirs socketdir)/S.gpg-agent.ssh"
 
 function _setup_wsl_gpg() {
-	if [ ! -f "$HOME/.wsl2/wsl2-ssh-pageant.exe" ]; then
-		return
-	fi
+  if [ ! -f "$HOME/.wsl2/wsl2-ssh-pageant.exe" ]; then
+    return
+  fi
 
-	local winuser
-	winuser=$(/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe '$env:UserName')
-	winuser=${winuser//$'\r'}
+  local winuser
+  winuser=$(/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe '$env:UserName')
+  winuser=${winuser//$'\r'}
   local config_path="C\:/Users/$winuser/AppData/Local/gnupg"
   local wsl2_ssh_pageant_bin="$HOME/.wsl2/wsl2-ssh-pageant.exe"
-	local gpg_socket_dir=$(gpgconf --list-dirs socketdir)
+  local gpg_socket_dir=$(gpgconf --list-dirs socketdir)
 
-	local ssh_socket="$gpg_socket_dir/S.gpg-agent.ssh"
-	local gpg_socket="$gpg_socket_dir/S.gpg-agent"
+  local ssh_socket="$gpg_socket_dir/S.gpg-agent.ssh"
+  local gpg_socket="$gpg_socket_dir/S.gpg-agent"
 
-	# Make sure that Host is running GPG Agent
-	/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe 'gpgconf --launch gpg-agent'
+  # Make sure that Host is running GPG Agent
+  /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe 'gpgconf --launch gpg-agent'
 
   # SSH Socket
   # Removing Linux SSH socket and replacing it by link to wsl2-ssh-pageant socket
-  # export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
   if ! ss -a | grep -q "$ssh_socket"; then
     rm -f "$ssh_socket"
     if test -x "$wsl2_ssh_pageant_bin"; then
@@ -183,7 +182,6 @@ function _setup_wsl_gpg() {
 
   # GPG Socket
   # Removing Linux GPG Agent socket and replacing it by link to wsl2-ssh-pageant GPG socket
-  # export GPG_AGENT_SOCK="$HOME/.gnupg/S.gpg-agent"
   if ! ss -a | grep -q "$gpg_socket"; then
     rm -rf "$gpg_socket"
     if test -x "$wsl2_ssh_pageant_bin"; then
@@ -268,7 +266,6 @@ fi
 
 export PATH="$PATH:${KREW_ROOT:-$HOME/.krew}/bin"
 
-#export XDG_CONFIG_HOME="$HOME/.config/psysh"
 export XDG_CONFIG_HOME="$HOME/.config"
 
 alias sops='EDITOR="nvim" sops'
@@ -281,7 +278,7 @@ autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C $HOME/.local/bin/mc mc
 
 function pubport() {
-	ssh -N -R 50001:0.0.0.0:${1} proxy.rothenberger.dev
+  ssh -N -R 50001:0.0.0.0:${1} proxy.rothenberger.dev
 }
 
 function mux() {

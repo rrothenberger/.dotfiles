@@ -42,7 +42,7 @@ function resolveLink() {
     # readlink -f "$1"
     # But if for whatever reason you are called "Apple", you might have
     # decided to not use GNU readlink - so now we have the manually
-    # resolve links... 
+    # resolve links...
 
     cd -- $(dirname "$1")
     local target_file=$(basename "$1")
@@ -131,13 +131,13 @@ if [ ! -d "$user_home/.oh-my-zsh/custom/themes/powerlevel10k" ]; then
 fi
 
 if [ ! -d "$user_home/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
-	echo "Installing zsh-autosuggestions..."
+  echo "Installing zsh-autosuggestions..."
   git clone https://github.com/zsh-users/zsh-autosuggestions "$user_home/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 fi
 
-linkConfiguration ".zshrc" 
-linkConfiguration ".gitconfig" 
-linkConfiguration ".gitignore_global" 
+linkConfiguration ".zshrc"
+linkConfiguration ".gitconfig"
+linkConfiguration ".gitignore_global"
 linkConfiguration "work/.gitconfig"
 linkConfiguration ".gnupg/gpg-agent.conf"
 linkConfiguration ".tmux.conf"
@@ -163,7 +163,7 @@ gpg2 --import-ownertrust "${script_path}/ownertrust.txt"
 
 if [ ! -z "$install_asdf" ]; then
   if ! command -v asdf >/dev/null; then
-		if [ ! -d "${user_home}/.asdf" ]; then
+    if [ ! -d "${user_home}/.asdf" ]; then
       echo "Installing asdf..."
       git clone https://github.com/asdf-vm/asdf.git "$user_home/.asdf" --branch v0.14.0
     fi
@@ -172,10 +172,10 @@ if [ ! -z "$install_asdf" ]; then
   fi
 
   asdf update
-	asdf plugin update --all
+  asdf plugin update --all
 
   echo "Installing asdf plugins..."
-	cat "${config_root_path}/.tool-versions" | cut -d' ' -f1 | grep -e '^[^#]' | while read -r line; do asdf plugin add "$line"; done
+  cat "${config_root_path}/.tool-versions" | cut -d' ' -f1 | grep -e '^[^#]' | while read -r line; do asdf plugin add "$line"; done
 
   echo "Installing dependencies from asdf..."
   asdf install

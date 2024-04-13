@@ -31,17 +31,17 @@ sudo apt-add-repository -y ppa:git-core/ppa
 sudo apt update -y
 sudo apt install -y zsh git tmux gnupg2 fzf htop build-essential autoconf \
                     m4 libncurses5-dev libwxgtk3.0-gtk3-dev  libwxgtk-webview3.0-gtk3-dev \
-	                  libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2 \
-										libxml2-utils libreadline-dev libyaml-dev uuid-dev pkg-config \
-										libssl-dev zlib1g-dev libcurl4-openssl-dev icu-devtools libicu-dev \
-										scdaemon yubikey-personalization yubikey-manager kitty oathtool jq
+                    libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2 \
+                    libxml2-utils libreadline-dev libyaml-dev uuid-dev pkg-config \
+                    libssl-dev zlib1g-dev libcurl4-openssl-dev icu-devtools libicu-dev \
+                    scdaemon yubikey-personalization yubikey-manager kitty oathtool jq
 
 sudo snap install yq
 chsh -s $(which zsh)
 
 if [ -f "/opt/direnv" ]; then
-	echo "Removing old direnv installation..."
-	sudo rm /opt/direnv 
+  echo "Removing old direnv installation..."
+  sudo rm /opt/direnv
 fi
 sudo curl -Lo "/opt/direnv" https://github.com/direnv/direnv/releases/latest/download/direnv.linux-amd64
 sudo chmod +x /opt/direnv
@@ -51,20 +51,20 @@ fi
 sudo ln -s /opt/direnv /usr/local/bin/direnv
 
 if [ -f "/opt/cosign" ]; then
-	echo "Removing old cosign installation..."
-	sudo rm /opt/cosign
+  echo "Removing old cosign installation..."
+  sudo rm /opt/cosign
 fi
 sudo curl -Lo "/opt/cosign" https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
 sudo chmod +x /opt/cosign
 if [ -L "/usr/local/bin/cosign" ] || [ -f "/usr/local/bin/cosign" ]; then
-	sudo rm /usr/local/bin/cosign
+  sudo rm /usr/local/bin/cosign
 fi
 sudo ln -s /opt/cosign /usr/local/bin/cosign
 
 if [ ! -z "$install_docker" ]; then
   sudo apt install gnome-terminal
 
-	# Add Docker's official GPG key:
+  # Add Docker's official GPG key:
   sudo apt-get update
   sudo apt-get install -y ca-certificates curl
   sudo install -m 0755 -d /etc/apt/keyrings
@@ -78,7 +78,7 @@ if [ ! -z "$install_docker" ]; then
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   sudo apt-get update
 
-	curl -Lo "${temp}/docker.deb" "https://desktop.docker.com/linux/main/amd64/145265/docker-desktop-4.29.0-amd64.deb?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-linux-amd64"
-	sudo apt install -y "${temp}/docker.deb"
+  curl -Lo "${temp}/docker.deb" "https://desktop.docker.com/linux/main/amd64/145265/docker-desktop-4.29.0-amd64.deb?utm_source=docker&utm_medium=webreferral&utm_campaign=docs-driven-download-linux-amd64"
+  sudo apt install -y "${temp}/docker.deb"
 fi
 
