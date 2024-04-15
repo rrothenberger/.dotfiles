@@ -85,7 +85,7 @@ COMPLETION_WAITING_DOTS="true"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(gitfast fzf zsh-autosuggestions asdf direnv command-not-found colored-man-pages colorize gitignore mix node npm rails ruby vscode)
+plugins=(gitfast fzf zsh-autosuggestions asdf direnv command-not-found colored-man-pages mix npm rails ruby)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -94,6 +94,7 @@ source $ZSH/oh-my-zsh.sh
 prompt_context(){}
 
 alias sl="ls"
+alias vim="nvim"
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
