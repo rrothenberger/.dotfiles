@@ -57,6 +57,7 @@ return {
         "bashls",
         "rubocop",
         "solargraph",
+        "terraformls",
       },
       handlers = {
         function(server_name) -- default handler (optional)

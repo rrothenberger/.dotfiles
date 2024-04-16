@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+home=$HOME
+tmux=$TMUX
+mux_internal_run=$MUX_INTERNAL_RUN
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+function _enter_session() {
+  if [[ ! -z $tmux ]]; then
+    tmux switch-client -t $1
+  else
+    tmux attach-session -t $1
+  fi
+}
+
+function _build_session_from_template() {
+  local template=$1
+  if [[ ! -f $template ]]; then
+    tmux new-window -d
+    return
+  fi
+
+  local idx=1
+  cat .tmux.session.json | jq -r '.windows.list[].cmd' | while read -r cmd; do
+    idx=$((idx + 1))
+    tmux wait-for -L "mux_init_$idx"
+    if [[ ! -z $cmd ]]; then
+      tmux wait-for -L "mux_init_sync_$idx"
+      tmux wait-for -L "mux_init_$idx" && tmux send-keys -t ":$idx.1" "$cmd" Enter && tmux wait-for -U "mux_init_$idx" && tmux wait-for -U "mux_init_sync_$idx" &
+    fi
+    tmux new-window -e "MUX_INIT_CHANNEL=mux_init_$idx" -d
+  done
+
+  tmux next-window
+
+  idx=1
+  cat .tmux.session.json | jq -r '.windows.list[].cmd' | while read -r cmd; do
+    idx=$((idx + 1))
+    if [[ ! -z $cmd ]]; then
+      echo $idx
+      tmux wait-for -L "mux_init_sync_$idx"
+      tmux wait-for -U "mux_init_sync_$idx"
+    fi
+  done
+}
+
+function _new_session() {
+  if [[ $# -eq 1 ]]; then
+    selected=$(realpath $1)
+  else
+    selected=$(find $home/work/*/* $home/work/* $home/personal/* $home/personal/*/* $home/.* -mindepth 1 -maxdepth 1 -type d -name .git | rev | cut -d'/' -f2- | rev | cut -d'/' -f4- | uniq | fzf)
+    if [[ -z $selected ]];then
+      exit 0
+    fi
+    selected="$home/$selected"
+  fi
+
+  if [[ -z $selected ]]; then
+    exit 0
+  fi
+
+  prefix=""
+  if [[ $(dirname $(dirname $selected)) == "$home/work" ]];then
+    prefix="$(basename $(dirname $selected))/"
+  fi
+  name="$prefix$(basename $selected)"
+  name=$(echo $name | tr . _)
+
+  if tmux has-session -t $name 2> /dev/null; then
+    _enter_session $name
+    exit 0
+  fi
+
+  tmux new-session -s $name -c $selected sh -c "MUX_INTERNAL_RUN=1 mux _build_session '$selected/.tmux.session.json'"
+}
+
+if [[ $mux_internal_run == "1" ]]; then
+  case "$1" in
+    _build_session) _build_session_from_template $2 ;;
+    *) exit 1
+  esac
+  exit 0
+fi
+
+if [[ $# -eq 0 ]]; then
+  _new_session
+fi
+
+if [[ $# -eq 1 ]]; then
+  _new_session $1
+fi

@@ -1,2 +1,3 @@
 backup/*
 !backup/.keep
+!.tmux.session.json

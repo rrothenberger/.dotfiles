@@ -237,11 +237,17 @@ function _check_if_git_personal_config_is_commited() {
 }
 _check_if_git_personal_config_is_commited
 
-function _sync_gitconfig() {
+function _push_gitconfig() {
     pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&-
     git add .
     git commit -m "[auto] syncing settings"
     git push origin main
+    popd >/dev/null 2>&-
+}
+
+function _pull_gitconfig() {
+    pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&-
+    git pull origin main
     popd >/dev/null 2>&-
 }
 
@@ -282,14 +288,14 @@ function pubport() {
   ssh -N -R 50001:0.0.0.0:${1} proxy.rothenberger.dev
 }
 
-function mux() {
-  tmux new-session -A -s $1 -c $1
-}
-
 alias run-prod-docker='docker build -t prod:test-run --target production . && docker run -it --env-file ./.env prod:test-run /bin/sh'
 alias tmuxm='tmux new-session -A -s main'
 
 #source $GIT_PERSONAL_CONFIG_DIR/.p10k.zsh
+
+if [[ ! -z $MUX_INIT_CHANNEL ]]; then
+  tmux wait-for -U "$MUX_INIT_CHANNEL"
+fi
 
 # KEEP LAST!!!
 export PATH=$HOME/.local/bin:$PATH

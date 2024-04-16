@@ -1,36 +1,36 @@
 [user]
-	email = rafal.rothenberger@gmail.com
-	name = Rafał Rothenberger
+  email = rafal.rothenberger@gmail.com
+  name = Rafał Rothenberger
 [init]
-	defaultBranch = main
+  defaultBranch = main
 [merge]
-	tool = vimdiff
+  tool = vimdiff
 [core]
-	excludesfile = ~/.gitignore_global
-	editor = nvim
-	eol = lf
+  excludesfile = ~/.gitignore_global
+  editor = vim
+  eol = lf
 [diff]
-	tool = vimdiff
+  tool = vimdiff
 [difftool]
-	prompt = false
+  prompt = false
 [alias]
-	d = difftool
+  d = difftool
 
 [gpg]
-	program = gpg2
+  program = gpg2
 [commit]
-	gpgsign = true
+  gpgsign = true
 
 [include]
-	path = ~/.gitconfig_local
+  path = ~/.gitconfig_local
 
 [includeIf "gitdir:~/work/"]
-	path = ~/work/.gitconfig
+  path = ~/work/.gitconfig
 
 [tag]
-	gpgsign = true
+  gpgsign = true
 [filter "lfs"]
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
-	clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+  clean = git-lfs clean -- %f
