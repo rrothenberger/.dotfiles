@@ -8,6 +8,21 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+args=()
+ignore_template="0"
+
+while [[ $# -gt 0 ]]; do
+  case "expression" in
+    -t|--ignore-template)
+      ignore_template="1"
+      ;;
+    *)
+      args+=("$1")
+      ;;
+  esac
+  shift
+done
+
 function _enter_session() {
   if [[ ! -z $tmux ]]; then
     tmux switch-client -t $1
@@ -40,7 +55,6 @@ function _build_session_from_template() {
   cat .tmux.session.json | jq -r '.windows.list[].cmd' | while read -r cmd; do
     idx=$((idx + 1))
     if [[ ! -z $cmd ]]; then
-      echo $idx
       tmux wait-for -L "mux_init_sync_$idx"
       tmux wait-for -U "mux_init_sync_$idx"
     fi
@@ -74,21 +88,26 @@ function _new_session() {
     exit 0
   fi
 
-  tmux new-session -s $name -c $selected sh -c "MUX_INTERNAL_RUN=1 mux _build_session '$selected/.tmux.session.json'"
+  if [[ $ignore_template == "1" ]]; then
+    tmux new-session -ds $name -c $selected
+  else
+    tmux new-session -ds $name -c $selected sh -c "MUX_INTERNAL_RUN=1 mux _build_session '$selected/.tmux.session.json'"
+  fi
+  _enter_session $name
 }
 
 if [[ $mux_internal_run == "1" ]]; then
-  case "$1" in
-    _build_session) _build_session_from_template $2 ;;
+  case "${args[0]}" in
+    _build_session) _build_session_from_template ${args[1]} ;;
     *) exit 1
   esac
   exit 0
 fi
 
-if [[ $# -eq 0 ]]; then
+if [[ ${#args[@]} -eq 0 ]]; then
   _new_session
 fi
 
-if [[ $# -eq 1 ]]; then
-  _new_session $1
+if [[ ${#args[@]} -eq 1 ]]; then
+  _new_session "${args[0]}"
 fi

@@ -295,6 +295,7 @@ alias tmuxm='tmux new-session -A -s main'
 
 if [[ ! -z $MUX_INIT_CHANNEL ]]; then
   tmux wait-for -U "$MUX_INIT_CHANNEL"
+  unset MUX_INIT_CHANNEL
 fi
 
 # KEEP LAST!!!
