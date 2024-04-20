@@ -12,8 +12,8 @@ args=()
 ignore_template="0"
 
 while [[ $# -gt 0 ]]; do
-  case "expression" in
-    -t|--ignore-template)
+  case "$1" in
+    -it|--ignore-template)
       ignore_template="1"
       ;;
     *)
@@ -62,10 +62,15 @@ function _build_session_from_template() {
 }
 
 function _new_session() {
+  local selected
   if [[ $# -eq 1 ]]; then
-    selected=$(realpath $1)
+    local dir=$1
+    if [[ -L "$home/.local/share/mux/aliases/$dir" ]]; then
+      dir="$home/.local/share/mux/aliases/$dir"
+    fi
+    selected=$(realpath $dir)
   else
-    selected=$(find $home/work/*/* $home/work/* $home/personal/* $home/personal/*/* $home/.* -mindepth 1 -maxdepth 1 -type d -name .git | rev | cut -d'/' -f2- | rev | cut -d'/' -f4- | uniq | fzf)
+    selected=$(find $home/work/*/* $home/work/* $home/personal/* $home/personal/*/* $home/* $home/.dotfiles -mindepth 1 -maxdepth 1 -type d -name .git | rev | cut -d'/' -f2- | rev | cut -d'/' -f4- | uniq | fzf)
     if [[ -z $selected ]];then
       exit 0
     fi
@@ -76,11 +81,11 @@ function _new_session() {
     exit 0
   fi
 
-  prefix=""
+  local prefix=""
   if [[ $(dirname $(dirname $selected)) == "$home/work" ]];then
     prefix="$(basename $(dirname $selected))/"
   fi
-  name="$prefix$(basename $selected)"
+  local name="$prefix$(basename $selected)"
   name=$(echo $name | tr . _)
 
   if tmux has-session -t $name 2> /dev/null; then
@@ -96,6 +101,242 @@ function _new_session() {
   _enter_session $name
 }
 
+function _list_sessions() {
+  tmux list-sessions
+}
+
+function _check_schema() {
+  local address=$3
+  local schema_address=$2
+  local file=$1
+
+  local schema_type=$(jq -r "$schema_address._type" < $home/.local/share/mux/template_schema.json)
+  local type
+  type=$(jq -r "$address | type" < $file)
+
+  if [[ "$type" != "$schema_type" ]]; then
+    echo "At '$address' expected $schema_type got $type"
+    return
+  fi
+
+  case "$type" in
+    object)
+      local schema_keys=$(jq -r "$schema_address._keys | sort" < $home/.local/share/mux/template_schema.json)
+      local keys=$(jq -r "$address | keys | sort" < $file)
+      if [[ "$keys" != "$schema_keys" ]]; then
+        echo "At '$address' expected object with $schema_keys but got $keys instead"
+        return
+      fi
+
+      jq -r "$address | keys | sort | .[]" < $file | while read line; do
+        _check_schema $file "$schema_address.$line" "$address | .$line"
+      done
+      ;;
+    array)
+      jq -r "$address | keys | .[]" < $file | while read line; do
+        _check_schema $file "$schema_address._schema" "$address[$line]"
+      done
+      ;;
+  esac
+}
+
+function _is_valid_template() {
+  if ! jq < $1 > /dev/null; then
+    return
+  fi
+
+  echo -n $(_check_schema $1 '' '.')
+
+  echo -n "true"
+}
+
+function _validate_template() {
+  local result=$(_is_valid_template $1)
+  if [[ "$result" != "true" ]]; then
+    echo -n $result
+    echo
+    echo "Provided template is not valid."
+    exit 1
+  fi
+}
+
+function _session_file_from_template() {
+  local file="$(pwd)/.tmux.session.json"
+
+  if [[ -f "$(pwd)/.tmux.session.json" ]]; then
+    echo "tmux session file already exists."
+    exit 1
+  fi
+
+  local template="$home/.local/share/mux/templates/$1.json"
+  if [[ ! -f $template ]]; then
+    echo "Template '$1' does not exist."
+    exit 1
+  fi
+
+  cp "$template" "$file"
+}
+
+function _session_file_to_template() {
+  local file="$(pwd)/.tmux.session.json"
+
+  if [[ ! -f $file ]]; then
+    echo "tmux session file does not exist."
+    exit 1
+  fi
+
+  _validate_template $file
+
+  local template="$home/.local/share/mux/templates/$1.json"
+  if [[ -f $template ]]; then
+    echo "Template '$1' already exists."
+    exit 1
+  fi
+
+  cp "$file" "$template"
+}
+
+function _list_templates() {
+  ls $home/.local/share/mux/templates | cut -d"." -f 1
+}
+
+function _rename_template() {
+  local old="$home/.local/share/mux/templates/$1.json"
+  local new="$home/.local/share/mux/templates/$2.json"
+
+  if [[ ! -f $old ]]; then
+    echo "There is no template named '$1'."
+    exit 1
+  fi
+
+  if [[ -f $new ]]; then
+    echo "There already exists template named '$2'."
+    exit 1
+  fi
+
+  mv "$old" "$new"
+}
+
+function _copy_template() {
+  local old="$home/.local/share/mux/templates/$1.json"
+  local new="$home/.local/share/mux/templates/$2.json"
+
+  if [[ ! -f $old ]]; then
+    echo "There is no template named '$1'."
+    exit 1
+  fi
+
+  if [[ -f $new ]]; then
+    echo "There already exists template named '$1'."
+    exit 1
+  fi
+
+  cp "$old" "$new"
+}
+
+function _delete_template() {
+  local file="$home/.local/share/mux/templates/$1.json"
+
+  if [[ ! -f $file ]]; then
+    echo "Template '$1' doesnt exists."
+    exit 1
+  fi
+
+  rm "$file"
+}
+
+function _try_to_edit_template() {
+  nvim $1
+  local validation_result=$(_is_valid_template $1)
+  if [[ "$validation_result" == "true" ]]; then
+    return
+  fi
+
+  echo -n $validation_result
+  echo
+  echo -n "Provided template is invalid, [f]ix or [A]bort?: "
+  local op
+  read op
+  case "$op" in
+    f|F) _try_to_edit_template $1 ;;
+    *)
+      echo "Aborted."
+      exit 1
+      ;;
+  esac
+}
+
+function _new_template() {
+  local file="$home/.local/share/mux/templates/$1.json"
+
+  if [[ -f $file ]]; then
+    echo "Template '$1' already exists."
+    exit 1
+  fi
+
+  local temp="$(mktemp -d)/template.json"
+  _try_to_edit_template "$temp"
+
+  mv $temp $file
+}
+
+function _edit_template() {
+  local file="$home/.local/share/mux/templates/$1.json"
+
+  if [[ ! -f $file ]]; then
+    echo "Template '$1' does not exist."
+    exit 1
+  fi
+
+  local temp="$(mktemp -d)/template.json"
+  cp $file $temp
+  _try_to_edit_template "$temp"
+
+  mv $temp $file
+}
+
+function _create_cwd_alias() {
+  if [[ -L "$home/.local/share/mux/aliases/$1" ]]; then
+    echo "Alias '$1' already exists"
+    exit 1
+  fi
+
+  local dir=$(pwd -P)
+  ln -s "$dir" "$home/.local/share/mux/aliases/$1"
+}
+
+function _list_aliases() {
+  ls -1 $home/.local/share/mux/aliases | while read line; do
+    echo "$line -> $(realpath "$home/.local/share/mux/aliases/$line")"
+  done
+}
+
+function _delete_alias() {
+  if [[ ! -L "$home/.local/share/mux/aliases/$1" ]]; then
+    echo "Alias '$1' does not exist."
+    exit 1
+  fi
+
+  rm "$home/.local/share/mux/aliases/$1"
+}
+
+function _rename_alias() {
+  local old="$home/.local/share/mux/aliases/$1"
+  local new="$home/.local/share/mux/aliases/$2"
+
+  if [[ ! -L $old ]]; then
+    echo "There is no alias named '$1'."
+    exit 1
+  fi
+
+  if [[ -L $new ]]; then
+    echo "There already exists alias named '$2'."
+    exit 1
+  fi
+
+  mv "$old" "$new"
+}
+
 if [[ $mux_internal_run == "1" ]]; then
   case "${args[0]}" in
     _build_session) _build_session_from_template ${args[1]} ;;
@@ -106,8 +347,125 @@ fi
 
 if [[ ${#args[@]} -eq 0 ]]; then
   _new_session
+  exit 0
 fi
 
-if [[ ${#args[@]} -eq 1 ]]; then
-  _new_session "${args[0]}"
-fi
+case "${args[0]}" in
+  new)
+    if [[ ${#args[@]} -eq 1 ]]; then
+      _new_session
+      exit 0
+    fi
+
+    _new_session "${args[1]}"
+    ;;
+  list)
+    _list_sessions
+    ;;
+  template)
+    if [[ ${#args[@]} -eq 1 ]]; then
+      template_name=$(_list_templates | fzf)
+    else
+      template_name="${args[1]}"
+    fi
+
+    if [[ -z $template_name ]]; then
+      exit 0
+    fi
+
+    _session_file_from_template $template_name
+    ;;
+  templates)
+    if [[ ${#args[@]} -eq 1 ]]; then
+      _list_templates
+      exit 0
+    fi
+
+    case "${args[1]}" in
+      list|l) _list_templates ;;
+      new|n)
+        if [[ ${#args[@]} -eq 2 ]]; then
+          echo "Name for new template needed."
+          exit 1
+        fi
+
+        _new_template "${args[2]}"
+        ;;
+      save)
+        if [[ ${#args[@]} -eq 2 ]]; then
+          echo "Name for new template needed."
+          exit 1
+        fi
+
+        _session_file_to_template "${args[2]}"
+        ;;
+      rename|rn)
+        if [[ ${#args[@]} -lt 4 ]]; then
+          echo "Current and new name for template needed."
+          exit 1
+        fi
+
+        _rename_template "${args[2]}" "${args[3]}"
+        ;;
+      copy|cp)
+        if [[ ${#args[@]} -lt 4 ]]; then
+          echo "Current and new name for template needed."
+          exit 1
+        fi
+
+        _copy_template "${args[2]}" "${args[3]}"
+        ;;
+      delete|del)
+        if [[ ${#args[@]} -eq 2 ]]; then
+          echo "Name for template needed."
+          exit 1
+        fi
+
+        _delete_template "${args[2]}"
+        ;;
+      edit|e)
+        if [[ ${#args[@]} -eq 2 ]]; then
+          echo "Name for template needed."
+          exit 1
+        fi
+
+        _edit_template "${args[2]}"
+        ;;
+    esac
+    ;;
+  alias)
+    if [[ ${#args[@]} -eq 1 ]]; then
+      echo "Name for alias missing."
+      exit 1
+    fi
+
+    _create_cwd_alias ${args[1]}
+    ;;
+  aliases)
+    if [[ ${#args[@]} -eq 1 ]]; then
+      _list_aliases
+      exit 0
+    fi
+
+    case "${args[1]}" in
+      delete|del)
+        if [[ ${#args[@]} -eq 2 ]]; then
+          echo "Name for alias needed."
+          exit 1
+        fi
+
+        _delete_alias "${args[2]}"
+        ;;
+      rename|rn)
+        if [[ ${#args[@]} -lt 4 ]]; then
+          echo "Current and new name for alias needed."
+          exit 1
+        fi
+
+        _rename_alias "${args[2]}" "${args[3]}"
+        ;;
+    esac
+    ;;
+  *) _new_session "${args[0]}" ;;
+esac
+
