@@ -184,7 +184,7 @@ fi
 
 echo "Setting git remote to ssh"
 pushd $script_path
-git remote set-url origin git@github.com:rafalrothenberger/.dotfiles.git
+git remote set-url origin git@github.com:rrothenberger/.dotfiles.git
 popd
 
 echo "Done! Reboot now to enable all changes"
