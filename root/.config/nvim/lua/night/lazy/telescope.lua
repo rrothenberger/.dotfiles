@@ -6,7 +6,7 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "BurntSushi/ripgrep",
-    "rafalrothenberger/telescope-harpoon2.nvim",
+    "rrothenberger/telescope-harpoon2.nvim",
   },
 
   config = function()
