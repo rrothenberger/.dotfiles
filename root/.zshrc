@@ -251,6 +251,11 @@ function _pull_gitconfig() {
     popd >/dev/null 2>&-
 }
 
+function _clf_tag() {
+  git tag -f -m "" $1/$(git rev-parse --abbrev-ref HEAD)
+  git push -f origin $1/$(git rev-parse --abbrev-ref HEAD)
+}
+
 _already_loaded_run_me=()
 function _run_me_in_repo {
     file=`git rev-parse --show-toplevel 2>/dev/null`"/.ignore_this_folder/run_me.sh"

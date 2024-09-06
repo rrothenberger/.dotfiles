@@ -35,6 +35,7 @@ return {
           "make",
           "go",
           "sql",
+          "embedded_template",
         },
 
         -- Install parsers synchronously (only applied to `ensure_installed`)
@@ -59,6 +60,8 @@ return {
           additional_vim_regex_highlighting = { "markdown" },
         },
       })
+
+      vim.api.nvim_del_user_command('EditQuery')
     end,
   },
   {

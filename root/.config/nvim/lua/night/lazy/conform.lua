@@ -12,6 +12,15 @@ return {
   opts = {
     formatters_by_ft = {
       lua = { "stylua" },
+      eruby = { "erb_lint" },
+    },
+    formatters = {
+      erb_lint = {
+        stdin = false,
+        tmpfile_format = ".conform.$RANDOM.$FILENAME",
+        command = "bundle",
+        args = { "exec", "erblint", "--autocorrect", "$FILENAME" },
+      },
     },
   },
 }
