@@ -256,6 +256,10 @@ function _clf_tag() {
   git push -f origin $1/$(git rev-parse --abbrev-ref HEAD)
 }
 
+function _clf_tags() {
+  git ls-remote --tags origin | grep "refs/tags/$1/" | grep -v "\^{}" | cut -d"/" -f4-
+}
+
 _already_loaded_run_me=()
 function _run_me_in_repo {
     file=`git rev-parse --show-toplevel 2>/dev/null`"/.ignore_this_folder/run_me.sh"
