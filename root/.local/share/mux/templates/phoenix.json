@@ -1,0 +1,18 @@
+{
+  "windows": {
+    "list": [
+      {
+        "cmd": "vim ."
+      },
+      {
+        "cmd": "pg_ctl -l /dev/null start"
+      },
+      {
+        "cmd": "iex -S mix"
+      },
+      {
+        "cmd": "mix phx.server"
+      }
+    ]
+  }
+}

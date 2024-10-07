@@ -1,0 +1,22 @@
+
+{
+  "windows": {
+    "list": [
+      {
+        "cmd": "vim ."
+      },
+      {
+        "cmd": ""
+      },
+      {
+        "cmd": "bin/rails c"
+      },
+      {
+        "cmd": "bin/rails s"
+      },
+      {
+        "cmd": "bin/bundle exec sidekiq -C config/sidekiq.yml"
+      }
+    ]
+  }
+}

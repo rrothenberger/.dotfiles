@@ -1,0 +1,6 @@
+*
+!.gitignore
+!nvim.json
+!phoenix.json
+!rails.json
+!terminal-only.json

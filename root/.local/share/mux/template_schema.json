@@ -1,0 +1,18 @@
+{
+  "_type": "object",
+  "_keys": ["windows"],
+  "windows": {
+    "_type": "object",
+    "_keys": ["list"],
+    "list": {
+      "_type": "array",
+      "_schema": {
+        "_type": "object",
+        "_keys": ["cmd"],
+        "cmd": {
+          "_type": "string"
+        }
+      }
+    }
+  }
+}
