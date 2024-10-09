@@ -29,6 +29,7 @@ chsh -s $(which zsh)
 ./extras/update_cosign.sh
 
 if [ ! -z "$install_docker" ]; then
+  temp=$(mktemp -d)
   sudo apt install gnome-terminal
 
   # Add Docker's official GPG key:
