@@ -23,9 +23,12 @@ chsh -s $(which zsh)
 ./extras/update_direnv.sh
 ./extras/update_cosign.sh
 
-if [ ! -z "$user_home" ]; then
+if [ ! -z "$install_docker" ]; then
   temp=$(mktemp -d)
   sudo dnf install -y gnome-terminal dnf-plugins-core
+  echo "Install this extensions: https://extensions.gnome.org/extension/615/appindicator-support/"
+  echo "Press enter to continue"
+  read
   sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
   curl -Lo "${temp}/docker.rpm" https://desktop.docker.com/linux/main/amd64/docker-desktop-x86_64.rpm
   sudo dnf install "${temp}/docker.rpm"
