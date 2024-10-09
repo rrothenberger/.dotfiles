@@ -6,7 +6,7 @@
 - [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh)
 - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
 - FiraCode Nerd Font or FuraCode Nerd Font
-- fzf 
+- fzf
 - [powerlevel10k zsh theme](https://github.com/romkatv/powerlevel10k)
 - [autotenv](https://github.com/hyperupcall/autoenv) or [direnv](https://direnv.net/)
 - [tmux](https://github.com/tmux/tmux) + [tpm](https://github.com/tmux-plugins/tpm)
@@ -24,4 +24,9 @@ RTFM.
 
 ## Installation
 
-Run 'setup. sh' - it should check for core dependencies + try to install some stuff if missing.
+Run first setup for platform and then 'setup. sh' - it should check for core dependencies + try to install some stuff if missing.
+Those are small files, just read them to understand what's happening.
+
+## TPM notes
+
+Remember to install plugins after running tmux for first time - `C-A -> I`. I always forget.
