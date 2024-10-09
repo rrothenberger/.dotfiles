@@ -11,21 +11,7 @@ user_home=$HOME
 install_docker=$INSTALL_DOCKER
 set -u
 
-temp=$(mktemp -d)
-sudo mkdir -p /opt
-curl -Lo "${temp}/nvim.tar.gz" https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
-tar -xzf "${temp}/nvim.tar.gz" -C "${temp}"
-if [ -d "/opt/nvim" ]; then
-  echo "Removing old nvim installation..."
-  sudo rm -rf /opt/nvim
-fi
-
-if [ -L "/usr/local/bin/nvim" ] || [ -f "/usr/local/bin/nvim" ]; then
-  sudo rm -rf /usr/local/bin/nvim
-fi
-
-sudo mv "${temp}/nvim-linux64" "/opt/nvim"
-sudo ln -s "/opt/nvim/bin/nvim" "/usr/local/bin/nvim"
+./extras/update_nvim.sh
 
 sudo apt-add-repository -y ppa:git-core/ppa
 sudo apt update -y
@@ -39,27 +25,8 @@ sudo apt install -y zsh git tmux gnupg2 fzf htop build-essential autoconf inotif
 sudo snap install yq
 chsh -s $(which zsh)
 
-if [ -f "/opt/direnv" ]; then
-  echo "Removing old direnv installation..."
-  sudo rm /opt/direnv
-fi
-sudo curl -Lo "/opt/direnv" https://github.com/direnv/direnv/releases/latest/download/direnv.linux-amd64
-sudo chmod +x /opt/direnv
-if [ -L "/usr/local/bin/direnv" ] || [ -f "/usr/local/bin/direnv" ]; then
-  sudo rm -rf /usr/local/bin/direnv
-fi
-sudo ln -s /opt/direnv /usr/local/bin/direnv
-
-if [ -f "/opt/cosign" ]; then
-  echo "Removing old cosign installation..."
-  sudo rm /opt/cosign
-fi
-sudo curl -Lo "/opt/cosign" https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64
-sudo chmod +x /opt/cosign
-if [ -L "/usr/local/bin/cosign" ] || [ -f "/usr/local/bin/cosign" ]; then
-  sudo rm /usr/local/bin/cosign
-fi
-sudo ln -s /opt/cosign /usr/local/bin/cosign
+./extras/update_direnv.sh
+./extras/update_cosign.sh
 
 if [ ! -z "$install_docker" ]; then
   sudo apt install gnome-terminal
