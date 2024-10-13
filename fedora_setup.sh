@@ -16,11 +16,15 @@ set -u
 sudo dnf install -y zsh fzf git-all yq make automake gcc gcc-c++ kernel-devel autoconf inotify-tools readline-devel \
                     ncurses-devel ncurses-libs wxGTK-devel wxBase openssl-devel libiodbc unixODBC-devel.x86_64 \
                     erlang-odbc.x86_64 libxslt fop libyaml-devel uuid-devel pkgconfig libcurl-devel icu libicu-devel \
-                    gnupg2 kitty oathtool jq libuuid-devel gnupg-pkcs11-scd pcsc-lite-ccid pcsc-tools yubikey-manager
+                    gnupg2 kitty oathtool jq libuuid-devel gnupg-pkcs11-scd pcsc-lite-ccid pcsc-tools yubikey-manager \
+                    podman docker-compose
 
 sudo dnf remove opensc
 sudo systemctl enable pcscd
 sudo systemctl start pcscd
+
+sudo flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+sudo flatpak install --user flathub io.podman_desktop.PodmanDesktop
 
 chsh -s $(which zsh)
 
