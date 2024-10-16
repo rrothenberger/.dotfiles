@@ -39,26 +39,62 @@ function _build_session_from_template() {
   fi
 
   local idx=1
-  cat .tmux.session.json | jq -r '.windows.list[].cmd' | while read -r cmd; do
+  local pidx=1
+  local sufix=$(mktemp -u)
+  cat .tmux.session.json | jq -rc '.windows.list[]' | while read -r window; do
+    local cmd=$(echo $window | jq -r ".cmd")
     idx=$((idx + 1))
-    tmux wait-for -L "mux_init_$idx"
+    pidx=1
+    tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}"
     if [[ ! -z $cmd ]]; then
-      tmux wait-for -L "mux_init_sync_$idx"
-      tmux wait-for -L "mux_init_$idx" && tmux send-keys -t ":$idx.1" "$cmd" Enter && tmux wait-for -U "mux_init_$idx" && tmux wait-for -U "mux_init_sync_$idx" &
+      tmux wait-for -L "mux_init_sync_${idx}_${pidx}_${sufix}"
+      tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}" && tmux send-keys -t ":$idx.$pidx" "$cmd" Enter && tmux wait-for -U "mux_init_${idx}_${pidx}_${sufix}" && tmux wait-for -U "mux_init_sync_${idx}_${pidx}_${sufix}" &
     fi
-    tmux new-window -e "MUX_INIT_CHANNEL=mux_init_$idx" -d
-  done
+    tmux new-window -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}"
 
-  tmux next-window
+    local extra_panes=$(echo $window | jq -rc ".extra_panes")
+    if [[ "$extra_panes" != "null" ]]; then
+      echo $window | jq -rc '.extra_panes[]' | while read -r pane; do
+        pidx=$((pidx + 1))
+        local cmd=$(echo $pane | jq -r ".cmd")
+        tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}"
+        if [[ ! -z $cmd ]]; then
+          tmux wait-for -L "mux_init_sync_${idx}_${pidx}_${sufix}"
+          tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}" && tmux send-keys -t ":$idx.$pidx" "$cmd" Enter && tmux wait-for -U "mux_init_${idx}_${pidx}_${sufix}" && tmux wait-for -U "mux_init_sync_${idx}_${pidx}_${sufix}" &
+        fi
+        local type=$(echo $pane | jq -r ".type")
+        if [[ "$type" == "vertical" ]]; then
+          tmux split-window -h -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}"
+        else
+          tmux split-window -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}"
+        fi
+      done
+    fi
+  done
 
   idx=1
-  cat .tmux.session.json | jq -r '.windows.list[].cmd' | while read -r cmd; do
+  cat .tmux.session.json | jq -rc '.windows.list[]' | while read -r window; do
+    local cmd=$(echo $window | jq -r ".cmd")
     idx=$((idx + 1))
+    pidx=1
     if [[ ! -z $cmd ]]; then
-      tmux wait-for -L "mux_init_sync_$idx"
-      tmux wait-for -U "mux_init_sync_$idx"
+      tmux wait-for -L "mux_init_sync_${idx}_${pidx}_${sufix}"
+      tmux wait-for -U "mux_init_sync_${idx}_${pidx}_${sufix}"
+    fi
+
+    local extra_panes=$(echo $window | jq -rc ".extra_panes")
+    if [[ "$extra_panes" != "null" ]]; then
+      echo $window | jq -rc '.extra_panes[]' | while read -r pane; do
+        pidx=$((pidx + 1))
+        local cmd=$(echo $pane | jq -r ".cmd")
+        if [[ ! -z $cmd ]]; then
+          tmux wait-for -L "mux_init_sync_${idx}_${pidx}_${sufix}"
+          tmux wait-for -U "mux_init_sync_${idx}_${pidx}_${sufix}"
+        fi
+      done
     fi
   done
+  tmux select-window -t 2
 }
 
 function _new_session() {
@@ -121,8 +157,9 @@ function _check_schema() {
 
   case "$type" in
     object)
-      local schema_keys=$(jq -r "$schema_address._keys | sort" < $home/.local/share/mux/template_schema.json)
-      local keys=$(jq -r "$address | keys | sort" < $file)
+      local schema_keys=$(jq -rc "$schema_address._keys | sort" < $home/.local/share/mux/template_schema.json)
+      local schema_optional_keys=$(jq -rc "$schema_address._optional_keys | sort" < $home/.local/share/mux/template_schema.json)
+      local keys=$(jq -rc "$address" < $file | jq --argjson schema_optional_keys $schema_optional_keys -rc '. | keys | map(select(. != $schema_optional_keys[])) | sort')
       if [[ "$keys" != "$schema_keys" ]]; then
         echo "At '$address' expected object with $schema_keys but got $keys instead"
         return
@@ -145,16 +182,18 @@ function _is_valid_template() {
     return
   fi
 
-  echo -n $(_check_schema $1 '' '.')
-
-  echo -n "true"
+  local result=$(_check_schema $1 '' '.')
+  if [[ ! -z "$result" ]]; then
+    printf "$result"
+  else
+    echo -n "true"
+  fi
 }
 
 function _validate_template() {
   local result=$(_is_valid_template $1)
   if [[ "$result" != "true" ]]; then
-    echo -n $result
-    echo
+    printf "$result\n\n"
     echo "Provided template is not valid."
     exit 1
   fi

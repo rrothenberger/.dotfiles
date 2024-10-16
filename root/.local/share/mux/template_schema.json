@@ -1,16 +1,33 @@
 {
   "_type": "object",
   "_keys": ["windows"],
+  "_optional_keys": [""],
   "windows": {
     "_type": "object",
     "_keys": ["list"],
+    "_optional_keys": [""],
     "list": {
       "_type": "array",
       "_schema": {
         "_type": "object",
         "_keys": ["cmd"],
+        "_optional_keys": ["extra_panes"],
         "cmd": {
           "_type": "string"
+        },
+        "extra_panes": {
+          "_type": "array",
+          "_schema": {
+            "_type": "object",
+            "_keys": ["cmd", "type"],
+            "_optional_keys": [""],
+            "cmd": {
+              "_type": "string"
+            },
+            "type": {
+              "_type": "string"
+            }
+          }
         }
       }
     }

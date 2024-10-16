@@ -300,6 +300,11 @@ function pubport() {
 alias run-prod-docker='docker build -t prod:test-run --target production . && docker run -it --env-file ./.env prod:test-run /bin/sh'
 alias tmuxm='tmux new-session -A -s main'
 
+function make_me_temp() {
+  temp=$(mktemp -d)
+  mux "$temp"
+}
+
 #source $GIT_PERSONAL_CONFIG_DIR/.p10k.zsh
 
 if [[ ! -z $MUX_INIT_CHANNEL ]]; then
