@@ -28,6 +28,16 @@ chsh -s $(which zsh)
 ./extras/update_direnv.sh
 ./extras/update_cosign.sh
 
+./extras/update_minio.sh
+./extras/update_mc.sh
+
+if [[ ! -f "/usr/lib/systemd/user/minio.service" ]] && [[ ! -L "/usr/lib/systemd/user/minio.service" ]]; then
+  echo "Linking minio.service..."
+  sudo ln -s "${script_path}/minio/minio.service" /usr/lib/systemd/user/minio.service
+  systemctl --user daemon-reload
+fi
+grep -qE "^127.0.0.1\s+minio.local\$" /etc/hosts || sudo sh -c 'echo "127.0.0.1       minio.local" >> /etc/hosts'
+
 if [ ! -z "$install_docker" ]; then
   temp=$(mktemp -d)
   sudo apt install gnome-terminal

@@ -1,0 +1,17 @@
+[Unit]
+Description=MinIO
+Documentation=https://docs.min.io
+Wants=network-online.target
+After=network-online.target
+AssertFileIsExecutable=/usr/local/bin/minio
+
+[Service]
+Type=simple
+PIDFile=/run/minio/%U/minio.pid
+ExecStart=/usr/local/bin/minio server $MINIO_OPTS %h/.minio/data
+TimeoutStopSec=infinity
+SendSIGKILL=no
+EnvironmentFile=-%h/.minio/env
+
+[Install]
+WantedBy=multi-user.target

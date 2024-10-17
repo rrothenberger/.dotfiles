@@ -150,6 +150,7 @@ chmod 0700 "$user_home/.gnupg"
 linkConfiguration ".local/bin/otp"
 linkConfiguration ".local/bin/mux"
 linkConfiguration ".local/share/mux"
+linkConfiguration ".minio"
 
 if [ ! -d "$user_home/.tmux/plugins/tpm" ]; then
   echo "Installing tmux plugin manager..."

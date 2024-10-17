@@ -10,11 +10,15 @@ set -o pipefail
 
 args=()
 ignore_template="0"
+start_detached="0"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -it|--ignore-template)
       ignore_template="1"
+      ;;
+    -d|--detached)
+      start_detached="1"
       ;;
     *)
       args+=("$1")
@@ -125,7 +129,9 @@ function _new_session() {
   name=$(echo $name | tr . _)
 
   if tmux has-session -t $name 2> /dev/null; then
-    _enter_session $name
+    if [[ $start_detached == "0" ]]; then
+      _enter_session $name
+    fi
     exit 0
   fi
 
@@ -134,7 +140,9 @@ function _new_session() {
   else
     tmux new-session -ds $name -c $selected sh -c "MUX_INTERNAL_RUN=1 mux _build_session '$selected/.tmux.session.json'"
   fi
-  _enter_session $name
+  if [[ $start_detached == "0" ]]; then
+    _enter_session $name
+  fi
 }
 
 function _list_sessions() {
