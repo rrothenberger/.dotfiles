@@ -19,7 +19,7 @@ sudo dnf install -y zsh fzf git-all yq make automake gcc gcc-c++ kernel-devel au
                     ncurses-devel ncurses-libs wxGTK-devel wxBase openssl-devel libiodbc unixODBC-devel.x86_64 \
                     erlang-odbc.x86_64 libxslt fop libyaml-devel uuid-devel pkgconfig libcurl-devel icu libicu-devel \
                     gnupg2 kitty oathtool jq libuuid-devel gnupg-pkcs11-scd pcsc-lite-ccid pcsc-tools yubikey-manager \
-                    podman
+                    podman nss-tools
 
 sudo dnf remove opensc
 sudo systemctl enable pcscd
@@ -36,11 +36,19 @@ chsh -s $(which zsh)
 ./extras/update_minio.sh
 ./extras/update_mc.sh
 
-if [[ ! -f "/usr/lib/systemd/user/minio.service" ]] && [[ ! -L "/usr/lib/systemd/user/minio.service" ]]; then
-  echo "Linking minio.service..."
-  sudo ln -s "${script_path}/minio/minio.service" /usr/lib/systemd/user/minio.service
-  systemctl --user daemon-reload
+if [[ -f "/etc/nginx/conf.d/minio.local.conf" ]] && [[ -L "/etc/nginx/conf.d/minio.local.conf" ]]; then
+  sudo rm /etc/nginx/conf.d/minio.local.conf
 fi
+echo "Linking minio nginx config"
+sudo ln -s "${script_path}/minio/minio.local.conf" /etc/nginx/conf.d/minio.local.conf
+
+if [[ -f "/usr/lib/systemd/user/minio.service" ]] && [[ -L "/usr/lib/systemd/user/minio.service" ]]; then
+  sudo rm /usr/lib/systemd/user/minio.service
+fi
+echo "Linking minio.service..."
+sudo ln -s "${script_path}/minio/minio.service" /usr/lib/systemd/user/minio.service
+
+systemctl --user daemon-reload
 grep -qE "^127.0.0.1\s+minio.local\$" /etc/hosts || sudo sh -c 'echo "127.0.0.1       minio.local" >> /etc/hosts'
 
 if [ ! -z "$install_docker" ]; then

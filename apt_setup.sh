@@ -20,7 +20,7 @@ sudo apt install -y zsh git tmux gnupg2 fzf htop build-essential autoconf inotif
                     libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2 \
                     libxml2-utils libreadline-dev libyaml-dev uuid-dev pkg-config \
                     libssl-dev zlib1g-dev libcurl4-openssl-dev icu-devtools libicu-dev \
-                    scdaemon yubikey-personalization yubikey-manager kitty oathtool jq
+                    scdaemon yubikey-personalization yubikey-manager kitty oathtool jq libnss3-tools
 
 sudo snap install yq
 chsh -s $(which zsh)
@@ -30,6 +30,12 @@ chsh -s $(which zsh)
 
 ./extras/update_minio.sh
 ./extras/update_mc.sh
+
+if [[ -f "/etc/nginx/conf.d/minio.local.conf" ]] && [[ -L "/etc/nginx/conf.d/minio.local.conf" ]]; then
+  sudo rm /etc/nginx/conf.d/minio.local.conf
+fi
+echo "Linking minio nginx config"
+sudo ln -s "${script_path}/minio/minio.local.conf" /etc/nginx/conf.d/minio.local.conf
 
 if [[ ! -f "/usr/lib/systemd/user/minio.service" ]] && [[ ! -L "/usr/lib/systemd/user/minio.service" ]]; then
   echo "Linking minio.service..."
