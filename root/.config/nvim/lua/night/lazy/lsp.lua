@@ -48,7 +48,7 @@ return {
         "elixirls",
         "zls",
         "rust_analyzer",
-        "tsserver",
+        "eslint",
         "gopls",
         "dockerls",
         "jsonls",
@@ -58,6 +58,7 @@ return {
         "rubocop",
         "solargraph",
         "terraformls",
+        "phpactor",
       },
       handlers = {
         function(server_name) -- default handler (optional)

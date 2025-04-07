@@ -85,7 +85,7 @@ COMPLETION_WAITING_DOTS="true"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(gitfast fzf zsh-autosuggestions asdf direnv command-not-found colored-man-pages mix npm rails ruby)
+plugins=(gitfast fzf zsh-autosuggestions direnv command-not-found colored-man-pages mix npm rails ruby)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -311,6 +311,9 @@ if [[ ! -z $MUX_INIT_CHANNEL ]]; then
   tmux wait-for -U "$MUX_INIT_CHANNEL"
   unset MUX_INIT_CHANNEL
 fi
+
+ASDF_DATA_DIR="$HOME/.asdf"
+export PATH="$ASDF_DATA_DIR/shims:$PATH"
 
 # KEEP LAST!!!
 export PATH=$HOME/.local/bin:$PATH

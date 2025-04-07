@@ -27,6 +27,7 @@ return {
           "eex",
           "erlang",
           "php",
+          "blade",
           "cmake",
           "cpp",
           "terraform",
