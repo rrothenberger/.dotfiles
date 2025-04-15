@@ -1,2 +1,6 @@
 [user]
-  email = rafal.rothenberger@monterail.com
+  email = roksana.rothenberger@monterail.com
+  signingkey = A4E96A9C173FFA8C
+
+[core]
+  sshCommand = ssh -i ~/.ssh/id_monte.pub
