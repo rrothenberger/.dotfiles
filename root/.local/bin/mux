@@ -45,32 +45,74 @@ function _build_session_from_template() {
   local idx=1
   local pidx=1
   local sufix=$(mktemp -u)
+  local pane_id=""
   cat .tmux.session.json | jq -rc '.windows.list[]' | while read -r window; do
     local cmd=$(echo $window | jq -r ".cmd")
     idx=$((idx + 1))
     pidx=1
+    # Confused? Look at commend a bit below.
     tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}"
+    pane_id=$(tmux new-window -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}" -P -F "#{pane_id}")
     if [[ ! -z $cmd ]]; then
       tmux wait-for -L "mux_init_sync_${idx}_${pidx}_${sufix}"
-      tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}" && tmux send-keys -t ":$idx.$pidx" "$cmd" Enter && tmux wait-for -U "mux_init_${idx}_${pidx}_${sufix}" && tmux wait-for -U "mux_init_sync_${idx}_${pidx}_${sufix}" &
+      # !!!!!!! Command below is background process !!!!!!!!
+      tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}" && tmux send-keys -t "$pane_id" "$cmd" Enter && tmux wait-for -U "mux_init_${idx}_${pidx}_${sufix}" && tmux wait-for -U "mux_init_sync_${idx}_${pidx}_${sufix}" &
     fi
-    tmux new-window -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}"
 
     local extra_panes=$(echo $window | jq -rc ".extra_panes")
     if [[ "$extra_panes" != "null" ]]; then
       echo $window | jq -rc '.extra_panes[]' | while read -r pane; do
-        pidx=$((pidx + 1))
-        local cmd=$(echo $pane | jq -r ".cmd")
-        tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}"
-        if [[ ! -z $cmd ]]; then
-          tmux wait-for -L "mux_init_sync_${idx}_${pidx}_${sufix}"
-          tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}" && tmux send-keys -t ":$idx.$pidx" "$cmd" Enter && tmux wait-for -U "mux_init_${idx}_${pidx}_${sufix}" && tmux wait-for -U "mux_init_sync_${idx}_${pidx}_${sufix}" &
+        local relative=$(echo $pane | jq -r ".relative")
+        if [[ "${relative}" == "null" ]]; then
+          relative=$pidx
         fi
+
+        pidx=$((pidx + 1))
+        # I already forgot once what the fuck is happening here, so the comment here is mostly for my broken memory.
+        # We create lock for specific widnow and pane, suffix is just in case I start multiple
+        # mux sessions at the same time (or one mux starts another). Then we provide the name
+        # of that lock as a env in command that starts the window/pane. Tere is short script
+        # in .zshrc that releases the lock. Why? Because that makes sure we start sending keys while
+        # the shell is ready to receive them.
+        # So where is that magical sending commands?
+        # After creation of window/pane, if some command should be sent, we are locking sync lock
+        # for that specific pane. This is here just to make sure that this script will not exit while
+        # some background processes are still working.
+        # Then we run our background process that waits for that shell lock, after it receives it,
+        # it sends keys to correct pane and then releases the sync lock to allow the script to exit.
+        # Sync locks are handled few lines below in another loop through whole template.
+        # I'm positive I don't really need those sync locks and could probably just do some loop based
+        # on `jobs` command output, but hey, it works for now.
+        # Why even run sending keys as background process? Because that way it will initialize much faster,
+        # it was painfully slow without that. After all it would start 10 shells one by one.
+        # With this it starts them "at the same time"-ish.
+        #
+        # Are there places for improvments? Oh yes. I'm 99.999% sure there is smarter way to do what I'm doing.
+        # I mean why I didn't just provide "$cmd; $SHELL -l" to tmux and to the commands and then start shell?
+        # I don't know, bite me future me. It would make this much simpler, I know. Again future me, bite me.
+        # And the sync locks were a mistake. I hope I will get back to that in future and fix it, but we all
+        # know how "fix it in the future" normally ends.
+        # But hey, at least working on that is fun. Maybe that's why it's over complicated, the whole
+        # "I could do it like that, but let me try this thing I never tried before..."
+        # Why I'm writing this wall of text? I don't know. I might have gone mad from trying to figure out how
+        # I was able to create pane after sending keys to it because I was missing that `&` at the end of the line.
+        # And if some lost soul reads it for some reason - you are awesome and I hope you know it.
+        tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}"
+
         local type=$(echo $pane | jq -r ".type")
         if [[ "$type" == "vertical" ]]; then
-          tmux split-window -h -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}"
+          tmux select-pane -t "${relative}"
+          pane_id=$(tmux split-window -h -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}" -P -F "#{pane_id}")
         else
-          tmux split-window -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}"
+          tmux select-pane -t "${relative}"
+          pane_id=$(tmux split-window -e "MUX_INIT_CHANNEL=mux_init_${idx}_${pidx}_${sufix}" -P -F "#{pane_id}")
+        fi
+
+        local cmd=$(echo $pane | jq -r ".cmd")
+        if [[ ! -z $cmd ]]; then
+          tmux wait-for -L "mux_init_sync_${idx}_${pidx}_${sufix}"
+          # !!!!!!! Command below is background process !!!!!!!!
+          tmux wait-for -L "mux_init_${idx}_${pidx}_${sufix}" && tmux send-keys -t "$pane_id" "$cmd" Enter && tmux wait-for -U "mux_init_${idx}_${pidx}_${sufix}" && tmux wait-for -U "mux_init_sync_${idx}_${pidx}_${sufix}" &
         fi
       done
     fi
@@ -99,6 +141,7 @@ function _build_session_from_template() {
     fi
   done
   tmux select-window -t 2
+  sleep 30
 }
 
 function _new_session() {
