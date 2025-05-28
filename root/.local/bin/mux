@@ -141,7 +141,6 @@ function _build_session_from_template() {
     fi
   done
   tmux select-window -t 2
-  sleep 30
 }
 
 function _new_session() {
