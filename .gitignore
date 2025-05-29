@@ -1,3 +1,5 @@
 backup/*
 !backup/.keep
 !.tmux.session.json
+.last_sync
+.last_sync_commit

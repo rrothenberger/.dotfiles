@@ -237,17 +237,61 @@ function _check_if_git_personal_config_is_commited() {
 }
 _check_if_git_personal_config_is_commited
 
+function _check_remote_git_config() {
+  pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&1
+  trap "popd >/dev/null 2>&1" EXIT
+
+  touch .last_sync
+  touch .last_sync_commit
+
+  local local_last_commit=$(git rev-parse HEAD)
+  local last_sync=$(cat .last_sync)
+  local last_sync_commit=$(cat .last_sync_commit)
+  local sync_date=$(date +%D)
+
+  if [[ "$last_sync" == "$sync_date" ]]; then
+    if [[ "$last_sync_commit" != "$local_last_commit" ]]; then
+      printf "Remote and local config repo are out of sync.\n"
+      printf "Config repo: $GIT_PERSONAL_CONFIG_DIR\n"
+    fi
+    return
+  fi
+
+  printf "Checking remote config repo...\n"
+
+  local repo_name=$(basename $(git ls-remote --get-url origin) .git)
+  local username=$(dirname $(git ls-remote --get-url origin))
+  if [[ "$username" == git@* ]]; then
+    username=$(printf $username | cut -d":" -f 2)
+  fi
+
+  local remote_last_commit=$(curl -s "https://api.github.com/repos/${username}/${repo_name}/branches/main" | jq -r ".commit.sha")
+
+  if [[ "$remote_last_commit" != "$local_last_commit" ]]; then
+    printf "Remote and local config repo are out of sync.\n"
+    printf "Config repo: $GIT_PERSONAL_CONFIG_DIR\n"
+  fi
+
+  printf $sync_date > .last_sync
+  printf $remote_last_commit > .last_sync_commit
+}
+_check_remote_git_config
+
 function _push_gitconfig() {
     pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&-
     git add .
     git commit -m "[auto] syncing settings"
     git push origin main
+    rm .last_sync_commit
+    rm .last_sync
     popd >/dev/null 2>&-
 }
 
 function _pull_gitconfig() {
     pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&-
     git pull origin main
+    rm .last_sync_commit
+    rm .last_sync
     popd >/dev/null 2>&-
 }
 
@@ -307,9 +351,13 @@ function make_me_temp() {
 
 #source $GIT_PERSONAL_CONFIG_DIR/.p10k.zsh
 
-if [[ ! -z $MUX_INIT_CHANNEL ]]; then
+function _mux_init() {
   tmux wait-for -U "$MUX_INIT_CHANNEL"
   unset MUX_INIT_CHANNEL
+}
+
+if [[ ! -z $MUX_INIT_CHANNEL ]]; then
+  _mux_init
 fi
 
 ASDF_DATA_DIR="$HOME/.asdf"
