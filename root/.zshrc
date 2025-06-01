@@ -267,16 +267,16 @@ function _push_gitconfig() {
     git add .
     git commit -m "[auto] syncing settings"
     git push origin main
-    rm -f .last_sync_commit
-    rm -f .last_sync
+    rm .last_sync_commit || true
+    rm .last_sync || true
 }
 
 function _pull_gitconfig() {
     pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&-
     trap "popd >/dev/null 2>&-" EXIT
     git pull origin main
-    rm -f .last_sync_commit
-    rm -f .last_sync
+    rm .last_sync_commit || true
+    rm .last_sync || true
 }
 
 function _clf_tag() {
