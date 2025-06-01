@@ -95,6 +95,7 @@ prompt_context(){}
 
 alias sl="ls"
 alias vim="nvim"
+alias sops='EDITOR="nvim" sops'
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -196,23 +197,6 @@ _setup_wsl_gpg
 
 export GPG_TTY=$(tty)
 
-function _load_dotenvfile_git {
-    dotenvfile=`git rev-parse --show-toplevel 2>/dev/null`"/.ignore_this_folder/env"
-    if [ -f "$dotenvfile" ]; then
-        echo "Loaded env"
-        source "$dotenvfile"
-    fi
-}
-_load_dotenvfile_git
-# Makes it works on CDs as well
-if [[ -n "$chpwd_functions" ]]; then
-    if [[ ${chpwd_functions[(ie)_load_dotenvfile_git]} -gt ${#chpwd_functions} ]]; then
-        chpwd_functions+=_load_dotenvfile_git
-    fi
-else
-    chpwd_functions=( _load_dotenvfile_git )
-fi
-
 function _create_copy_of_zshrc {
     mkdir -p $HOME/.zshrc_copy
     touch $HOME/.zshrc_copy/last_hash
@@ -279,20 +263,20 @@ _check_remote_git_config
 
 function _push_gitconfig() {
     pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&-
+    trap "popd >/dev/null 2>&-" EXIT
     git add .
     git commit -m "[auto] syncing settings"
     git push origin main
     rm .last_sync_commit
     rm .last_sync
-    popd >/dev/null 2>&-
 }
 
 function _pull_gitconfig() {
     pushd $GIT_PERSONAL_CONFIG_DIR >/dev/null 2>&-
+    trap "popd >/dev/null 2>&-" EXIT
     git pull origin main
     rm .last_sync_commit
     rm .last_sync
-    popd >/dev/null 2>&-
 }
 
 function _clf_tag() {
@@ -304,34 +288,9 @@ function _clf_tags() {
   git ls-remote --tags origin | grep "refs/tags/$1/" | grep -v "\^{}" | cut -d"/" -f4-
 }
 
-_already_loaded_run_me=()
-function _run_me_in_repo {
-    file=`git rev-parse --show-toplevel 2>/dev/null`"/.ignore_this_folder/run_me.sh"
-    if [ -f "$file" ]; then
-        if [[ ${_already_loaded_run_me[(ie)${file}]} -gt ${#_already_loaded_run_me} ]]; then
-            _already_loaded_run_me+=$file
-            source "$file"
-            echo "Loaded run_me.sh"
-        fi
-    fi
-}
-_run_me_in_repo
-if [[ -n "$chpwd_functions" ]]; then
-    if [[ ${chpwd_functions[(ie)_run_me_in_repo]} -gt ${#chpwd_functions} ]]; then
-        chpwd_functions+=_run_me_in_repo
-    fi
-else
-    chpwd_functions=( _run_me_in_repo )
-fi
-
 export PATH="$PATH:${KREW_ROOT:-$HOME/.krew}/bin"
-
 export XDG_CONFIG_HOME="$HOME/.config"
-
-alias sops='EDITOR="nvim" sops'
-
 export ERL_AFLAGS="-kernel shell_history enabled"
-
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 autoload -U +X bashcompinit && bashcompinit
@@ -341,23 +300,14 @@ function pubport() {
   ssh -N -R 50001:0.0.0.0:${1} proxy.rothenberger.dev
 }
 
-alias run-prod-docker='docker build -t prod:test-run --target production . && docker run -it --env-file ./.env prod:test-run /bin/sh'
-alias tmuxm='tmux new-session -A -s main'
-
 function make_me_temp() {
   temp=$(mktemp -d)
   mux "$temp"
 }
 
-#source $GIT_PERSONAL_CONFIG_DIR/.p10k.zsh
-
-function _mux_init() {
+if [[ ! -z $MUX_INIT_CHANNEL ]]; then
   tmux wait-for -U "$MUX_INIT_CHANNEL"
   unset MUX_INIT_CHANNEL
-}
-
-if [[ ! -z $MUX_INIT_CHANNEL ]]; then
-  _mux_init
 fi
 
 ASDF_DATA_DIR="$HOME/.asdf"

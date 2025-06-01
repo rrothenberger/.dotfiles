@@ -40,6 +40,13 @@ return {
       end, opts)
     end
 
+    -- Does not work through mason
+    -- https://github.com/mason-org/mason.nvim/issues/1777
+    require("lspconfig").ruby_lsp.setup({
+      capabilities = capabilities,
+      on_attach = on_attach,
+    })
+
     require("fidget").setup({})
     require("mason").setup()
     require("mason-lspconfig").setup({
@@ -55,14 +62,12 @@ return {
         "marksman",
         "yamlls",
         "bashls",
-        "rubocop",
-        "solargraph",
         "terraformls",
         "phpactor",
       },
       handlers = {
         function(server_name) -- default handler (optional)
-          if server_name == "rubocop" or server_name == "solargraph" then
+          if server_name == "lua_ls" then
             return
           end
 
@@ -83,22 +88,6 @@ return {
                 },
               },
             },
-          })
-        end,
-
-        ["rubocop"] = function()
-          require("lspconfig").rubocop.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-            cmd = { "bundle", "exec", "rubocop", "--lsp" },
-          })
-        end,
-
-        ["solargraph"] = function()
-          require("lspconfig").solargraph.setup({
-            capabilities = capabilities,
-            on_attach = on_attach,
-            cmd = { "bundle", "exec", "solargraph", "stdio" },
           })
         end,
       },
