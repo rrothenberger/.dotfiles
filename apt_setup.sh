@@ -66,3 +66,4 @@ if [ ! -z "$install_docker" ]; then
   sudo apt install -y "${temp}/docker.deb"
 fi
 
+./extras/update_asdf.sh

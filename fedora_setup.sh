@@ -61,3 +61,5 @@ if [ ! -z "$install_docker" ]; then
   curl -Lo "${temp}/docker.rpm" https://desktop.docker.com/linux/main/amd64/docker-desktop-x86_64.rpm
   sudo dnf install "${temp}/docker.rpm"
 fi
+
+./extras/update_asdf.sh

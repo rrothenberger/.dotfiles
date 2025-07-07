@@ -1,6 +1,6 @@
 [user]
   email = roksana.rothenberger@monterail.com
-  signingkey = A4E96A9C173FFA8C
+  signingkey = 553A91AF11B4C870
 
 [core]
   sshCommand = ssh -i ~/.ssh/id_monte.pub
