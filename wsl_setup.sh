@@ -50,6 +50,7 @@ if [ ! -d "/mnt/c/Program Files/PuTTy" ]; then
 fi
 
 temp=$(mktemp -d)
+trap "rm -r $temp" EXIT
 
 if [ ! -d "$app_home/wsl2-ssh-pageant" ]; then
   mkdir -p "$app_home/wsl2-ssh-pageant"

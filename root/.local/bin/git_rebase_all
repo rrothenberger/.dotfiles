@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+args=()
+merged_branches=()
+merged_branch="0"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -mb|--merged-branch)
+      merged_branch="1"
+      ;;
+    *)
+      if [[ "$merged_branch" == "1" ]]; then
+        merged_branches+=("$1")
+        merged_branch="0"
+      else
+        args+=("$1")
+      fi
+      ;;
+  esac
+  shift
+done
+
+echo "${merged_branches[@]}"
+
+printf "Hash of current HEAD: "
+git rev-parse --verify HEAD
+
+working_branch=$(git rev-parse --abbrev-ref HEAD)
+git checkout main 2>/dev/null >/dev/null
+trap "git checkout $working_branch 2>/dev/null" EXIT
+
+git pull origin main
+
+prev_branch="origin/main"
+to_cherry_pick=()
+
+git --no-pager log --pretty=%H --left-right --cherry-pick --reverse  HEAD..$working_branch | while read l; do
+  echo "--- $l"
+  branch=$(git --no-pager branch --points-at "${l}" --format "%(refname:lstrip=2)" | head -n 1)
+  to_cherry_pick+=("$l")
+  if [[ -z "$branch" ]]; then
+    continue
+  fi
+
+  echo "$branch --- $l"
+
+  matched=false
+  for merged_branch in "${merged_branches[@]}"; do
+    if [[ "$merged_branch" == "$branch" ]]; then
+      matched=true
+    fi
+  done
+
+  if [[ "$matched" == "true" ]]; then
+    to_cherry_pick=()
+    continue
+  fi
+
+  echo $branch
+  git checkout $branch
+  common_commit=$(git merge-base $prev_branch $branch)
+
+  git reset --hard $common_commit
+  git rebase $prev_branch
+
+  for commit in ${to_cherry_pick[@]}; do
+    git cherry-pick $commit
+  done
+
+  git push origin $branch --force-with-lease
+
+  to_cherry_pick=()
+
+  prev_branch=$branch
+done
+

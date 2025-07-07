@@ -4,7 +4,7 @@ golang 1.22.1
 nodejs 22.16.0
 ruby 3.4.2
 rust 1.77.1
-zig 0.11.0
+zig 0.14.0
 awscli 2.15.34
 aws-vault 7.2.0
 kubectl 1.28.8

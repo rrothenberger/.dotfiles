@@ -46,6 +46,8 @@ grep -qE "^127.0.0.1\s+minio.local\$" /etc/hosts || sudo sh -c 'echo "127.0.0.1 
 
 if [ ! -z "$install_docker" ]; then
   temp=$(mktemp -d)
+  trap "rm -r $temp" EXIT
+
   sudo apt install gnome-terminal
 
   # Add Docker's official GPG key:
@@ -66,3 +68,4 @@ if [ ! -z "$install_docker" ]; then
   sudo apt install -y "${temp}/docker.deb"
 fi
 
+./extras/update_asdf.sh

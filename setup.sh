@@ -12,8 +12,11 @@ install_asdf=$INSTALL_ASDF
 
 set -u
 
+temp=$(mktemp -d)
+trap "rm -r $temp" EXIT
+
 function checkIfGNUReadlink() {
-  local test_dir=$(mktemp -d)
+  local test_dir="$temp/test_dir"
   mkdir -p $test_dir
 
   touch "$test_dir/good"
@@ -144,11 +147,13 @@ linkConfiguration ".tmux.conf"
 linkConfiguration ".config/nvim"
 linkConfiguration ".tool-versions"
 linkConfiguration ".config/kitty"
+linkConfiguration ".config/wezterm"
 
 chmod 0700 "$user_home/.gnupg"
 
 linkConfiguration ".local/bin/otp"
 linkConfiguration ".local/bin/mux"
+linkConfiguration ".local/bin/git_rebase_all"
 linkConfiguration ".local/share/mux"
 linkConfiguration ".minio"
 
@@ -165,16 +170,7 @@ done
 gpg2 --import-ownertrust "${script_path}/ownertrust.txt"
 
 if [ ! -z "$install_asdf" ]; then
-  if ! command -v asdf >/dev/null; then
-    if [ ! -d "${user_home}/.asdf" ]; then
-      echo "Installing asdf..."
-      git clone https://github.com/asdf-vm/asdf.git "$user_home/.asdf" --branch v0.14.0
-    fi
-
-    source $user_home/.asdf/asdf.sh
-  fi
-
-  asdf update
+  checkIfCommandExists 'asdf'
   asdf plugin update --all
 
   echo "Installing asdf plugins..."

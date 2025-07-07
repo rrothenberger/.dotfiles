@@ -40,15 +40,24 @@ return {
       end, opts)
     end
 
+    require("fidget").setup({})
+    require("mason").setup()
+    local util = require("lspconfig.util")
+
     -- Does not work through mason
     -- https://github.com/mason-org/mason.nvim/issues/1777
     require("lspconfig").ruby_lsp.setup({
       capabilities = capabilities,
       on_attach = on_attach,
+      root_dir = function(pattern)
+        local cwd = vim.uv.cwd()
+        local root = util.root_pattern("Gemfile.lock", ".git", ".rubocop.yml", "*.gemspec")(pattern)
+
+        -- prefer cwd if root is a descendant
+        return util.path.is_descendant(cwd, root) and cwd or root
+      end,
     })
 
-    require("fidget").setup({})
-    require("mason").setup()
     require("mason-lspconfig").setup({
       ensure_installed = {
         "lua_ls",
