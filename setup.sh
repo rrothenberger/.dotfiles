@@ -150,6 +150,7 @@ chmod 0700 "$user_home/.gnupg"
 
 linkConfiguration ".local/bin/otp"
 linkConfiguration ".local/bin/mux"
+linkConfiguration ".local/bin/git_rebase_all"
 linkConfiguration ".local/share/mux"
 linkConfiguration ".minio"
 
