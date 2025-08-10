@@ -7,16 +7,36 @@ set -o pipefail
 args=()
 merged_branches=()
 merged_branch="0"
+base_branch="main"
+base_branch_flag="0"
+push_branches="1"
+ignore_before=""
+ignore_before_flag="0"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    -dp|--dont-push)
+      push_branches="0"
+      ;;
     -mb|--merged-branch)
       merged_branch="1"
+      ;;
+    -b|--base-branch)
+      base_branch_flag="1"
+      ;;
+    -ib|--ignore-before)
+      ignore_before_flag="1"
       ;;
     *)
       if [[ "$merged_branch" == "1" ]]; then
         merged_branches+=("$1")
         merged_branch="0"
+      elif [[ "$base_branch_flag" == "1" ]]; then
+        base_branch=$1
+        base_branch_flag="0"
+      elif [[ "$ignore_before_flag" == "1" ]]; then
+        ignore_before=$1
+        ignore_before_flag="0"
       else
         args+=("$1")
       fi
@@ -31,15 +51,23 @@ printf "Hash of current HEAD: "
 git rev-parse --verify HEAD
 
 working_branch=$(git rev-parse --abbrev-ref HEAD)
-git checkout main 2>/dev/null >/dev/null
+git checkout $base_branch 2>/dev/null >/dev/null
 trap "git checkout $working_branch 2>/dev/null" EXIT
 
-git pull origin main
+git pull origin $base_branch
 
-prev_branch="origin/main"
+prev_branch=$base_branch
 to_cherry_pick=()
 
 git --no-pager log --pretty=%H --left-right --cherry-pick --reverse  HEAD..$working_branch | while read l; do
+  if [[ "$ignore_before" == "$l" ]]; then
+    ignore_before=""
+  fi
+
+  if [[ ! -z "$ignore_before" ]]; then
+    continue
+  fi
+
   echo "--- $l"
   branch=$(git --no-pager branch --points-at "${l}" --format "%(refname:lstrip=2)" | head -n 1)
   to_cherry_pick+=("$l")
@@ -72,7 +100,9 @@ git --no-pager log --pretty=%H --left-right --cherry-pick --reverse  HEAD..$work
     git cherry-pick $commit
   done
 
-  git push origin $branch --force-with-lease
+  if [[ "$push_branches" == "1" ]]; then
+    git push origin $branch --force-with-lease
+  fi
 
   to_cherry_pick=()
 

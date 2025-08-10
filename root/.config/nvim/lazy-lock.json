@@ -21,6 +21,8 @@
   "nvim-treesitter-endwise": { "branch": "master", "commit": "57d52841a966be6ff9a998a6d3dc1ac9cc9d95fc" },
   "nvim-web-devicons": { "branch": "master", "commit": "57dfa947cc88cdf1baa2c7e13ed31edddd8fb1d1" },
   "plenary.nvim": { "branch": "master", "commit": "857c5ac632080dba10aae49dba902ce3abf91b35" },
+  "rainbow_csv.nvim": { "branch": "main", "commit": "26de78d8324f7ac6a3e478319d1eb1f17123eb5b" },
+  "render-markdown.nvim": { "branch": "main", "commit": "9e51b7711c6159511e966dc42fafd58a9db9ad1d" },
   "ripgrep": { "branch": "master", "commit": "de4baa10024f2cb62d438596274b9b710e01c59b" },
   "rose-pine": { "branch": "main", "commit": "7d1b5c7dcd274921f0f58e90a8bf935f6a95fbf3" },
   "telescope-harpoon2.nvim": { "branch": "main", "commit": "3217d26b6156c4a0a4a09f43dd288357026af85c" },
