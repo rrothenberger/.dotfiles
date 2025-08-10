@@ -1,7 +1,7 @@
-elixir 1.18.4-otp-27
-erlang 27.3.4
+elixir 1.18.4-otp-28
+erlang 28.0.2
 golang 1.22.1
-nodejs 22.16.0
+nodejs 24.5.0
 ruby 3.4.5
 rust 1.77.1
 zig 0.14.0

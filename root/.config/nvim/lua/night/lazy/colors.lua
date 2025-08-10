@@ -31,10 +31,18 @@ return {
         disable_background = true,
         disable_float_background = true,
         disable_italics = true,
+        variant = "dark",
+        dark_variant = "main",
       })
       vim.cmd("colorscheme rose-pine")
       vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
       vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+
+      local colors = require("rose-pine.palette");
+
+      -- Some coloring for elixir
+      vim.api.nvim_set_hl(0, "@string.special.symbol.elixir", { fg = colors.foam })
+      vim.api.nvim_set_hl(0, "@module.elixir", { fg = colors.iris, bold = true })
     end,
   },
 }
