@@ -1,0 +1,12 @@
+SYMFONIA_DB_NAME=name
+SYMFONIA_DB_USER=user
+SYMFONIA_DB_PASSWORD='password'
+SYMFONIA_BACKUPS_DIR=/home/symfonia/backups
+SYMFONIA_TEMP_DIR=/home/symfonia/temp
+SYMFONIA_BACKUP_PASSWORD='password'
+SYMFONIA_RSYNC_PASSWORD='password'
+SYMFONIA_RSYNC_TARGET='user@host:/home'
+SYMFONIA_RSYNC_PORT=23
+SYMFONIA_PID_FILE=/home/symfonia/.symfonia.pid
+SYMFONIA_LAST_SYNC_FILE=/home/symfonia/.last_sync
+TZ="Europe/Warsaw"

@@ -2,3 +2,4 @@
 .ignore_this_folder/
 .elixir_ls/
 .tmux.session.json
+lefthook_no_prepush.yml

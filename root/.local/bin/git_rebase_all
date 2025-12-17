@@ -51,20 +51,20 @@ printf "Hash of current HEAD: "
 git rev-parse --verify HEAD
 
 working_branch=$(git rev-parse --abbrev-ref HEAD)
-git checkout $base_branch 2>/dev/null >/dev/null
+git checkout "$base_branch" 2>/dev/null >/dev/null
 trap "git checkout $working_branch 2>/dev/null" EXIT
 
-git pull origin $base_branch
+git pull origin "$base_branch"
 
 prev_branch=$base_branch
 to_cherry_pick=()
 
-git --no-pager log --pretty=%H --left-right --cherry-pick --reverse  HEAD..$working_branch | while read l; do
+git --no-pager log --pretty=%H --left-right --cherry-pick --reverse "HEAD..$working_branch" | while read -r l; do
   if [[ "$ignore_before" == "$l" ]]; then
     ignore_before=""
   fi
 
-  if [[ ! -z "$ignore_before" ]]; then
+  if [[ -n "$ignore_before" ]]; then
     continue
   fi
 
@@ -89,19 +89,19 @@ git --no-pager log --pretty=%H --left-right --cherry-pick --reverse  HEAD..$work
     continue
   fi
 
-  echo $branch
-  git checkout $branch
-  common_commit=$(git merge-base $prev_branch $branch)
+  echo "$branch"
+  git checkout "$branch"
+  common_commit=$(git merge-base "$prev_branch" "$branch")
 
-  git reset --hard $common_commit
-  git rebase $prev_branch
+  git reset --hard "$common_commit"
+  git rebase "$prev_branch"
 
-  for commit in ${to_cherry_pick[@]}; do
-    git cherry-pick $commit
+  for commit in "${to_cherry_pick[@]}"; do
+    git cherry-pick "$commit" || $SHELL -li
   done
 
   if [[ "$push_branches" == "1" ]]; then
-    git push origin $branch --force-with-lease
+    git push origin "$branch" --force-with-lease
   fi
 
   to_cherry_pick=()
