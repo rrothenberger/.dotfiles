@@ -1,0 +1,16 @@
+[Unit]
+Description=SymfoniaBackups
+Wants=network-online.target
+After=network-online.target
+AssertFileIsExecutable=/home/symfonia/backup.sh
+
+[Service]
+Type=oneshot
+ExecStart=-/home/symfonia/backup.sh /home/symfonia/config
+TimeoutStartSec=2400
+EnvironmentFile=/home/symfonia/config
+User=symfonia
+Group=symfonia
+
+[Install]
+WantedBy=multi-user.target

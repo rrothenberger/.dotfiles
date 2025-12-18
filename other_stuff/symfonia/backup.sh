@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # Run in cron:
-# /usr/bin/timeout 2400 /home/symfonia/backup.sh /home/symfonia/config 2>&1 | logger -t symfonia-backup
+# /usr/bin/env TZ=Europe/Warsaw /usr/bin/timeout 2400 /home/symfonia/backup.sh /home/symfonia/config 2>&1 | logger -t symfonia-backup
+# if CRON_TZ does not exist, service and timer can be used instead
 
 set -o errexit
 set -o pipefail
@@ -39,9 +40,11 @@ curr_date=$(date "+%d-%m-%Y")
 rm "$SYMFONIA_TEMP_DIR/current.bak" 2>/dev/null || true
 /opt/mssql-tools18/bin/sqlcmd -S localhost -U $SYMFONIA_DB_USER -P "$SYMFONIA_DB_PASSWORD" -C -Q "BACKUP DATABASE [$SYMFONIA_DB_NAME] TO DISK = N'$SYMFONIA_TEMP_DIR/current.bak' WITH NOFORMAT, NOINIT, NAME = '$SYMFONIA_DB_NAME', SKIP, NOREWIND, NOUNLOAD, STATS = 10"
 
+backup_file="$SYMFONIA_BACKUPS_DIR/backup_$(date '+%Y%m%d_%H%M').bak.7z"
+
 7z a -mhe=on -bt -bsp1 -bb1 -t7z current.bak.7z -p"$SYMFONIA_BACKUP_PASSWORD" current.bak
 
-mv current.bak.7z "$SYMFONIA_BACKUPS_DIR/backup_$(date '+%Y%m%d_%H%M').bak.7z"
+mv current.bak.7z "$backup_file"
 
 (
   ls --sort=time $SYMFONIA_BACKUPS_DIR/* | tail -n +8 | while read l; do

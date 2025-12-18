@@ -1,0 +1,11 @@
+[Unit]
+Description=Timer for symfonia backups
+Requires=symfonia-backup.service
+
+[Timer]
+Unit=symfonia-backup.service
+# Run the timer, every hour, on the hour
+OnCalendar=*-*-* 2..23:0:00 Europe/Warsaw
+
+[Install]
+WantedBy=timers.target
