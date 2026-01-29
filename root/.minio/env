@@ -1,4 +1,4 @@
 MINIO_ROOT_USER=root
 MINIO_ROOT_PASSWORD=rootroot
 MINIO_OPTS="--console-address :9001"
-MINIO_BROWSER_REDIRECT_URL="https://minio.local/minio/ui"
+MINIO_BROWSER_REDIRECT_URL="https://minio.clf-local.com/minio/ui"
